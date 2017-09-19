@@ -1,0 +1,130 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Hack";
+  font-size: 12;
+}
+
+.split {
+  padding: 5px;
+  height: 100%;
+}
+
+#window {
+  display: block;
+  background-color: #f5f5f5;
+  height: 100%;
+  width: 100%;
+  border: 3px solid #e0e0e0;
+}
+
+#left_sidebar {
+  display: inline-block;
+  float: left;
+  width: 25%;
+  max-width: 400px;
+}
+
+#main_content {
+  display: inline-block;
+  float: left;
+  width: 75%;
+}
+
+.card {
+  display: block;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0px 1px 3px -1px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.card.filling {
+  height: 100%;
+}
+
+.category_view {
+  margin: 5px auto;
+  padding: 5px;
+}
+
+.category_view:first-child {
+  margin-top: 0;
+}
+
+.category_view:last-child {
+  margin-top: 0;
+}
+
+.category_view > .category_note_preview {
+  padding: 4px 0 4px 0px;
+}
+
+.category_view > .category_note_preview > .category_preview_item {
+  border-left: 3px solid #e0e0e0;
+  padding-left: 4px;
+  margin: 4px 0;
+}
+
+.category_view > .category_note_preview > .category_preview_item.active {
+  border-left: 3px solid #3498db;
+  padding-left: 4px;
+  margin: 2px 0;
+  background-color: rgba(52, 152, 219, 0.3);
+}
+
+.note {
+
+}
+
+.note > .note_header {
+  background-color: rgba(52, 152, 219, 1);
+  height: 30px;
+  line-height: 30px;
+  padding-left: 5px;
+  padding-right: 15px;
+  color: white;
+}
+
+.note > .note_header > .note_header_title {
+  display: block;
+  float: left;
+}
+
+.note > .note_header > .note_header_settings {
+  display: block;
+  float: right;
+}
+
+.note > .note_content {
+
+  /* 50px = header + footer */
+  height: calc(100% - 50px);
+  padding: 5px 15px 5px 5px;
+}
+
+.note > .note_footer {
+  height: 20px;
+  line-height: 20px;
+  background-color: #e0e0e0;
+  padding: 0 15px 0 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
