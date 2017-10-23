@@ -2,7 +2,7 @@
 ## `Login`
 ```json
 {
-	username,
-	password
+  "username": "fabianbaechli",
+  "password": "hellow rold"
 }
 ```
