@@ -49,3 +49,10 @@
 }
 ```
 
+## GET `/authenticated`
+### res
+```json
+{
+  "authenticated": true / false
+}
+```
