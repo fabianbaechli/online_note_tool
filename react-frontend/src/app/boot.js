@@ -3,12 +3,6 @@ import { render } from "react-dom"
 
 import style from "../style/main.scss"
 
-class App extends React.Component {
-  render() {
-    return (
-      <p>Hello World!</p>
-    )
-  }
-}
+import App from "./App.js"
 
-render(<App/>, document.getElementById("app"))
+render(<App/>, document.getElementById("react_main_container"))
