@@ -7,6 +7,12 @@
   "password": "hellow rold"
 }
 ```
+### res
+```json
+{
+  "ok": true / false
+}
+```
 
 ## `POST 'create_user'`
 ### reg
@@ -18,12 +24,26 @@
 }
 ```
 
+### res
+```json
+{
+  "ok": true / false
+}
+```
+
 ## `POST '/create_note'`
 ### req
 ```json
 {
   "header": "This is a header",
   "content": "lorem ipsum"
+}
+```
+
+### res
+```json
+{
+  "ok": true / false
 }
 ```
 
@@ -49,10 +69,18 @@
 }
 ```
 
+### res
+```json
+{
+  "ok": true / false
+}
+```
+
 ## GET `/authenticated`
 ### res
 ```json
 {
-  "authenticated": true / false
+  "authenticated": true / false,
+  "username": "req.session.username"
 }
 ```
