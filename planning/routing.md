@@ -1,16 +1,58 @@
 # Routes
-## `/login`
+## `POST '/login'`
+### req
 ```json
 {
   "username": "fabianbaechli",
   "password": "hellow rold"
 }
 ```
-## `/create_user`
+
+## `POST 'create_user'`
+### reg
 ```json
 {
   "username": "fabianbaechli",
   "password": "hellow rold",
   "retype_password": "hellow rold"
+}
+```
+
+## `POST '/create_note'`
+### req
+```json
+{
+  "header": "This is a header",
+  "content": "lorem ipsum"
+}
+```
+
+## `GET '/get_notes'`
+### res
+```json
+{
+  "id": 1,
+  "title": "This is a header",
+  "date_created": 25-12-2017,
+  "date_modified": 27-12-2017,
+  "content": "lorem ipsum"
+}
+```
+
+## POST `change_note`
+### req
+```json
+{
+  "id": 1,
+  "title": "This is a new header",
+  "content": "mata sanctus est Lorem"
+}
+```
+
+## GET `/authenticated`
+### res
+```json
+{
+  "authenticated": true / false
 }
 ```
