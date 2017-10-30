@@ -1,0 +1,6 @@
+.DS_Store
+*.swp
+/.git
+/node_modules
+/npm-debug.log
+/src/public/bundle.js
