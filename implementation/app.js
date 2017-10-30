@@ -166,7 +166,20 @@ app.post('change_note', (req, res) => {
     let mm = createDate.getMonth() + 1;
     let yyyy = createDate.getFullYear();
 
+    let modified = ""+yyyy + mm + dd;
 
+    if (sess.authenticated) {
+        const queryString = "UPDATE Note SET title="+title+", content="+content+", date_modified="+modified+" WHERE id = "+entry_id+";";
+        connection.query(queryString, (err, rows) => {
+            if (!err)
+                res.json({ ok: true, message: "Note succesfully changed"});
+            else {
+                res.json({ ok: false, message: "Note was not changed"});
+            }
+        })
+    } else {
+        res.json({ authenticated: false })
+    }
 });
 
 app.listen(3000, function (req, res) {
