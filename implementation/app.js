@@ -48,7 +48,6 @@ app.get("/", (req, res) => {
 });
 
 
-
 app.post("/create_user", (req, res) => {
     console.log(req.body);
     let username = req.body['username'];
@@ -56,23 +55,21 @@ app.post("/create_user", (req, res) => {
     // connect to database
     connection.query('INSERT INTO notes_tool.User (username, password) VALUES (' + connection.escape(username) + ', ' + connection.escape(password) + ')', function (err, rows, fields) {
         if (!err)
-            console.log('The solution is: ', rows);
+            res.json({ok: true, message: "User Created"});
         else
-            console.log('Error while performing Query.');
+            res.json({ok: false, message: "User failed to create"});
     });
 
-    res.redirect('/index.html');
 });
-
 
 
 app.post('/login', (req, res) => {
     sess = req.session;
     body = req.body;
-    if(!sess.authenticated) {
+    if (!sess.authenticated) {
         console.log(body.username);
-        connection.query('SELECT password, id FROM notes_tool.User WHERE username = '+ connection.escape(body.username), function (err, rows, fields) {
-            if (!err){
+        connection.query('SELECT password, id FROM notes_tool.User WHERE username = ' + connection.escape(body.username), function (err, rows, fields) {
+            if (!err) {
                 console.log('The solution is: ', rows[0].password);
                 if (rows.length !== 0) {
                     let user = rows[0];
@@ -80,28 +77,22 @@ app.post('/login', (req, res) => {
                         sess.authenticated = true;
                         sess.username = body.username;
                         req.session.db_id = user.id;
-                        res.redirect('/index.html');
+                        res.json({ok: true, message: "logged in"});
                         return;
                     }
                 }
 
-                console.log('log in failed');
-                res.redirect('/index.html');
+                res.json({ok: false, message: "Log in failed"});
             }
             else {
-
-                console.log('Error while performing Query.');
-                res.redirect('/index.html');
+                res.json({ok: false, message: "Error while performing query"});
             }
         });
     } else {
-        res.redirect('/index.html');
+        res.json({authenticated: false});
     }
 });
 
-app.post('/create_note', (req,res) => {
-
-});
 
 app.get("/get_notes", (req, res) => {
     sess = req.session;
@@ -117,7 +108,37 @@ app.get("/get_notes", (req, res) => {
     } else {
         res.json({authenticated: false})
     }
-})
+});
+
+app.post("/create_note", (req, res) => {
+    if (req.session.authenticated) {
+        body = req.body;
+        let createDate = new Date();
+        let dd = createDate.getDate();
+        let mm = createDate.getMonth() + 1;
+        let yyyy = createDate.getFullYear();
+
+        const queryString = "INSERT INTO `Note` (`title`, `date_created`, `date_modified`, `content`) " +
+            "VALUES" + "(" + body.header + ", " + yyyy + mm + dd + "," + yyyy + mm + dd + "," + body.content + ");"
+        connection.query(queryString, (err, rows) => {
+            if (!err) {
+                res.json({ok: true, message: "created entry"})
+            } else {
+                res.json({ok: false, message: "entry not created"})
+            }
+        })
+
+    } else {
+        res.json({authenticated: false})
+    }
+});
+
+app.get("/authenticated", (req, res) => {
+    if (req.session.authenticated)
+        res.json({authenticated: req.session.authenticated, username: req.session.username})
+    else
+        res.json({authenticated: false, username: undefined})
+});
 
 
 app.listen(3000, function (req, res) {
