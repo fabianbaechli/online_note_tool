@@ -8,6 +8,6 @@
 - Editing notes
 - Deleting notes
 
-## Chosen technologies
+## Used technologies
 - Frontend: The usual suspects + React
 - Backend: NodeJS(Express) + MySQL
