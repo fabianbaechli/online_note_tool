@@ -141,6 +141,34 @@ app.get("/authenticated", (req, res) => {
 });
 
 
+app.post("/delete_note", (req, res) => {
+    if (req.session.authenticated) {
+        const queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = "+ req.body.note_id +"AND Contributor.`fk_user` = "+req.session.db_id;
+        connection.query(queryString, (err, rows) => {
+            if (!err)
+                res.json({ok: true, message: "deleted entry"})
+            else
+                res.json({ok: false, message: "couldn't delete entry"})
+        })
+    } else {
+        res.json({ok: false, message: "not logged in"})
+    }
+});
+
+app.post('change_note', (req, res) => {
+    body = req.body;
+    let entry_id = body.entry_id;
+    let title = body.entry_title;
+    let content = body.entry_content;
+
+    let createDate = new Date();
+    let dd = createDate.getDate();
+    let mm = createDate.getMonth() + 1;
+    let yyyy = createDate.getFullYear();
+
+
+});
+
 app.listen(3000, function (req, res) {
     console.log("app listening on 3000");
 });
