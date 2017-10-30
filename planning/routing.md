@@ -10,11 +10,12 @@
 ### res
 ```json
 {
-  "ok": true / false
+  "ok": true / false,
+  "message": "logged in"
 }
 ```
 
-## `POST 'create_user'`
+## `POST '/create_user'`
 ### reg
 ```json
 {
@@ -27,7 +28,8 @@
 ### res
 ```json
 {
-  "ok": true / false
+  "ok": true / false,
+  "message": "User created"
 }
 ```
 
@@ -43,7 +45,8 @@
 ### res
 ```json
 {
-  "ok": true / false
+  "ok": true / false,
+  "message"
 }
 ```
 
@@ -63,7 +66,7 @@
 ### req
 ```json
 {
-  "id": 1,
+  "enty_id": 1,
   "title": "This is a new header",
   "content": "mata sanctus est Lorem"
 }
@@ -72,7 +75,8 @@
 ### res
 ```json
 {
-  "ok": true / false
+  "ok": true / false,
+  "message": "changed note"
 }
 ```
 
