@@ -1,13 +1,91 @@
 import k from "./Constants.js"
 
-const users = [
-  {
-    username: "leonard",
-    password: "pw1"
+class MockServer {
+  constructor() {
+    this.users = [
+      {
+        username: "leonard",
+        password: "pw1"
+      }
+    ]
+    this.session = undefined
   }
-]
 
-let session = undefined
+  authenticated(callback) {
+    callback({
+      authenticated: this.session !== undefined,
+      username: (this.session ? this.session.username : undefined)
+    })
+  }
+
+  login(username, password, callback) {
+    let user_found
+
+    this.users.map((user) => {
+      if (user.username == username) user_found = user
+    })
+
+    if (!user_found) {
+      return callback({
+        ok: false,
+        message: "User doesn't exist"
+      })
+    }
+
+    if (user_found.password == password) {
+      this.session = { username }
+      return callback({
+        ok: true,
+        message: "Logged in"
+      })
+    } else {
+      return callback({
+        ok: false,
+        message: "Invalid password"
+      })
+    }
+  }
+
+  register(username, password, password_repeat, callback) {
+    if (password != password_repeat) {
+      return callback({
+        ok: false,
+        message: "Passwords don't match"
+      })
+    }
+
+    let user_found
+
+    this.users.map((user) => {
+      if (user.username == username) user_found = user
+    })
+
+    if (user_found) {
+      return callback({
+        ok: false,
+        message: "Username already taken"
+      })
+    }
+
+    this.users.push({ username, password })
+
+    this.session = { username }
+
+    callback({
+      ok: true,
+      message: "Created user"
+    })
+  }
+
+  logout(callback) {
+    this.session = undefined
+    callback({
+      ok: true
+    })
+  }
+}
+
+const server = new MockServer()
 
 /*
  * Offline mock of the backend used for development without the server
@@ -22,108 +100,48 @@ export default class DataSource {
   }
 
   checkAuthenticated(callback) {
-    setTimeout(() => {
-      if (session) {
-        this.state.authenticated = k.Authenticated
-        this.state.username = session.username
-        callback({
-          authenticated: true,
-          username: session.username
-        })
-        console.log("boyo")
-        this.onUpdate()
-      } else {
-        this.state.authenticated = k.NotAuthenticated
-        this.state.username = undefined
-        callback({
-          authenticated: false,
-          username: undefined
-        })
-        this.onUpdate()
-      }
-    }, 600)
+    server.authenticated((response) => {
+      this.state.authenticated = response.authenticated ? k.Authenticated : k.NotAuthenticated
+      this.state.username = response.username
+      callback(response)
+      if (this.onUpdate) this.onUpdate()
+    })
   }
 
   login(username, password, callback) {
-    setTimeout(() => {
-      let found_user
-
-      users.map((user) => {
-        if (user.username == username) {
-          found_user = user
-        }
-      })
-
-      if (!found_user) {
-        return callback({
-          ok: false,
-          message: "User doesn't exist"
-        })
-      }
-
-      if (found_user.password == password) {
-        session = {
-          username: found_user.username
-        }
-
+    server.login(username, password, (response) => {
+      if (response.ok) {
         this.state.authenticated = k.Authenticated
-        this.state.username = found_user.username
-
-        return callback({
-          ok: true,
-          message: "Logged in"
-        })
+        this.state.username = username
+        callback(response)
       } else {
-        return callback({
-          ok: false,
-          message: "Invalid password"
-        })
+        this.state.authenticated = k.NotAuthenticated
+        this.state.username = undefined
+        callback(response)
       }
-    }, 600)
+      if (this.onUpdate) this.onUpdate()
+    })
   }
 
   register(username, password, retype_password, callback) {
-    setTimeout(() => {
-
-      if (password != retype_password) {
-        return callback({
-          ok: false,
-          message: "Passwords don't match"
-        })
+    server.register(username, password, retype_password, (response) => {
+      if (response.ok) {
+        this.state.authenticated = k.Authenticated
+        this.state.username = username
+      } else {
+        this.state.authenticated = k.NotAuthenticated
+        this.state.username = undefined
       }
 
-      let found_user
-
-      users.map((user) => {
-        if (user.username == username) {
-          found_user = user
-        }
-      })
-
-      if (found_user) {
-        return callback({
-          ok: false,
-          message: "Username already taken"
-        })
-      }
-
-      users.push({
-        username, password
-      })
-
-      callback({
-        ok: true,
-        message: "Registered as user"
-      })
-    }, 600)
+      callback(response)
+      if (this.onUpdate) this.onUpdate()
+    })
   }
 
   logout(callback) {
-    setTimeout(() => {
-      session = undefined
-      callback({
-        ok: true
-      })
-    }, 600)
+    server.logout((response) => {
+      callback(response)
+      if (this.onUpdate) this.onUpdate()
+    })
   }
 }

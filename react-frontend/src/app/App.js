@@ -22,7 +22,9 @@ export default class App extends React.Component {
     this.state = {
       datasource: new DataSource(this.onAuthenticationUpdate)
     }
+  }
 
+  componentDidMount() {
     this.state.datasource.checkAuthenticated((response) => {
       console.log(response)
     })
