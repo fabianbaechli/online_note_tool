@@ -1,11 +1,14 @@
 import k from "./Constants.js"
 import { backend_get, backend_post } from "./Utils.js"
 
+import Note from "./Note.js"
+import User from "./User.js"
+
 export default class DataSource {
   constructor(onUpdate) {
     this.state = {
       authenticated: k.NotAuthenticated,
-      username: undefined
+      user: undefined
     }
     this.onUpdate = onUpdate
   }
@@ -52,6 +55,22 @@ export default class DataSource {
       this.state.username = undefined
       callback(response)
       if (this.onUpdate) this.onUpdate(this)
+    })
+  }
+
+  // Fetch the list of notes of the current user from the backend
+  fetchNoteList(callback) {
+    backend_get("get_notes", (response, xhr) => {
+      if (response.ok == false) {
+        return callback(response)
+     }
+
+      callback({
+        ok: true,
+        notes: response.notes.map((note) => {
+          return new Note(note.id, note.title, note.date_created, note.date_modified, note.content)
+        })
+      })
     })
   }
 }

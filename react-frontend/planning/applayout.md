@@ -2,8 +2,6 @@
 
 - App
   - AuthenticationController
-    - LoginController
-    - RegisterController
   - MainViewController
     - NoteList
       - NoteListItem

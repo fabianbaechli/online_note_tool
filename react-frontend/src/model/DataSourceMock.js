@@ -1,5 +1,8 @@
 import k from "./Constants.js"
 
+import Note from "./Note.js"
+import User from "./User.js"
+
 class MockServer {
   constructor() {
     this.users = [
@@ -8,7 +11,29 @@ class MockServer {
         password: "pw1"
       }
     ]
-    this.session = undefined
+
+    this.session = {
+      username: "leonard"
+    }
+
+    this.notes = [
+      {
+        id: 0,
+        title: "Good Morning!",
+        date_created: "01:01:2017",
+        date_modified: "02:01:2017",
+        content: "What's up my friend",
+        owner: "leonard"
+      },
+      {
+        id: 1,
+        title: "Good Evening!",
+        date_created: "01:01:2017",
+        date_modified: "02:01:2017",
+        content: "Sleep Well",
+        owner: "leonard"
+      }
+    ]
   }
 
   authenticated(callback) {
@@ -83,6 +108,20 @@ class MockServer {
       ok: true
     })
   }
+
+  fetchNoteList(callback) {
+    if (this.session === undefined) {
+      return callback({
+        ok: false,
+        message: "Not logged in"
+      })
+    }
+
+    callback({
+      ok: true,
+      notes: this.notes.filter((note) => note.owner = this.session.username)
+    })
+  }
 }
 
 const server = new MockServer()
@@ -142,6 +181,21 @@ export default class DataSource {
     server.logout((response) => {
       callback(response)
       if (this.onUpdate) this.onUpdate()
+    })
+  }
+
+  fetchNoteList(callback) {
+    server.fetchNoteList((response) => {
+      if (response.ok == false) {
+        return callback(response)
+      }
+
+      callback({
+        ok: true,
+        notes: response.notes.map((note) => {
+          return new Note(note.id, note.title, note.date_created, note.date_modified, note.content)
+        })
+      })
     })
   }
 }

@@ -1,5 +1,4 @@
 import React from "react"
-import { render } from "react-dom"
 
 import style from "../style/App.scss"
 
@@ -7,6 +6,7 @@ import k from "../model/Constants.js"
 import DataSource from "../model/DataSourceMock.js"
 
 import AuthenticationController from "./AuthenticationController.js"
+import MainViewController from "./MainViewController.js"
 
 /*
  * Main Component of the App
@@ -26,18 +26,15 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.state.datasource.checkAuthenticated((response) => {
-      console.log(response)
+      // Do nothing here, onAuthenticationUpdate gets called automatically by the datasource
     })
   }
 
   onAuthenticationUpdate(datasource) {
-
-    // An update in the datasource just triggers a re-render
     this.forceUpdate()
   }
 
   render() {
-    console.log(this.state.datasource.state.authenticated)
     if (this.state.datasource.state.authenticated == k.NotAuthenticated) {
       return (
         <AuthenticationController
@@ -47,9 +44,7 @@ export default class App extends React.Component {
       )
     } else {
       return (
-        <div>
-          You are authenticated! Good Job!
-        </div>
+        <MainViewController datasource={this.state.datasource}/>
       )
     }
   }
