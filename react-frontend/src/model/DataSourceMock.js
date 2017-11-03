@@ -23,7 +23,16 @@ class MockServer {
         date_created: "01:01:2017",
         date_modified: "02:01:2017",
         content: "What's up my friend",
-        owner: "leonard"
+        users: [
+          {
+            id: 0,
+            username: "leonard"
+          },
+          {
+            id: 1,
+            username: "peter"
+          }
+        ]
       },
       {
         id: 1,
@@ -31,7 +40,12 @@ class MockServer {
         date_created: "01:01:2017",
         date_modified: "02:01:2017",
         content: "Sleep Well",
-        owner: "leonard"
+        users: [
+          {
+            id: 0,
+            username: "leonard"
+          }
+        ]
       }
     ]
   }
@@ -193,7 +207,14 @@ export default class DataSource {
       callback({
         ok: true,
         notes: response.notes.map((note) => {
-          return new Note(note.id, note.title, note.date_created, note.date_modified, note.content)
+          return new Note(
+            note.id,
+            note.title,
+            note.date_created,
+            note.date_modified,
+            note.content,
+            note.users.map((user) => new User(user.id, user.username))
+          )
         })
       })
     })

@@ -68,7 +68,14 @@ export default class DataSource {
       callback({
         ok: true,
         notes: response.notes.map((note) => {
-          return new Note(note.id, note.title, note.date_created, note.date_modified, note.content)
+          return new Note(
+            note.id,
+            note.title,
+            note.date_created,
+            note.date_modified,
+            note.content,
+            note.users.map((user) => new User(user.id, user.username))
+          )
         })
       })
     })

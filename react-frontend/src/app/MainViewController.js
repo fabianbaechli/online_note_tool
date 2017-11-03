@@ -4,6 +4,9 @@ import style from "../style/MainViewController.scss"
 
 import k from "../model/Constants.js"
 
+import NoteList from "./NoteList.js"
+import NoteView from "./NoteView.js"
+
 /*
  * Controller for the main application
  * */
@@ -12,9 +15,11 @@ export default class MainViewController extends React.Component {
     super(props)
 
     this.fetchNoteList = this.fetchNoteList.bind(this)
+    this.onSelectionChange = this.onSelectionChange.bind(this)
 
     this.state = {
-      notes: []
+      notes: [],
+      selected_index: 0
     }
   }
 
@@ -38,17 +43,25 @@ export default class MainViewController extends React.Component {
     })
   }
 
+  onSelectionChange(index) {
+    this.setState({
+      selected_index: index
+    })
+  }
+
   render() {
     return (
-      <div className="MainViewController">{ this.state.notes.map((note) => {
-        return (
-          <div>
-            <p>{note.title}</p>
-            <p>{note.created} - {note.modified}</p>
-            <p>{note.content}</p>
-          </div>
-        )
-      }) }</div>
+      <div className="MainViewController">
+        <NoteList
+          notes={this.state.notes}
+          selected_index={this.state.selected_index}
+          onSelectionChange={this.onSelectionChange}
+        />
+        <NoteView
+          datasource={this.props.datasource}
+          note={this.state.notes[this.state.selected_index]}
+        />
+      </div>
     )
   }
 }
