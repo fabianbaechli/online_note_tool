@@ -1,9 +1,20 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,500,700');
+
+// Application color scheme
+$theme_primary: #48569E;
+$theme_background: #FEFEFE;
+$theme_border: #D6D6D6;
+$theme_primary_text: #1C2021;
+$theme_secondary_text: #333b3d;
+$theme_tertiary_text: #D1D5D8;
+
+// Size constraints
+$sidebar_width: 330px;
+
+// Global settings
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-body {
-  background-color: red;
+  font-family: 'Roboto', sans-serif;
 }

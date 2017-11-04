@@ -1,0 +1,27 @@
+@import "main.scss";
+
+.NoteListItem {
+  display: block;
+  height: 100px;
+  padding: 5px;
+
+  border-bottom: 5px solid $theme_border;
+
+  .title {
+    font-weight: 600;
+    font-size: 20px;
+    color: $theme_primary_text;
+  }
+
+  .modified {
+    font-weight: 400;
+    font-size: 15px;
+    color: $theme_secondary_text;
+  }
+
+  .content {
+    font-weight: 500;
+    font-size: 15px;
+    color: $theme_tertiary_text;
+  }
+}

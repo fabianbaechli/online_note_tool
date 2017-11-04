@@ -29,8 +29,6 @@ export default class MainViewController extends React.Component {
 
   fetchNoteList() {
     this.props.datasource.fetchNoteList((response) => {
-      console.log(response)
-
       if (!response.ok) {
         this.setState({
           notes: []

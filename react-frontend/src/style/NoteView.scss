@@ -1,0 +1,9 @@
+@import "main.scss";
+
+.NoteView {
+  display: block;
+  float: left;
+  overflow: hidden;
+  height: 100%;
+  width: calc(100% - #{$sidebar_width});
+}

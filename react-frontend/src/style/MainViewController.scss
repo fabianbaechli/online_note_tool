@@ -1,0 +1,11 @@
+@import "main.scss";
+
+.MainViewController {
+  background-color: $theme_primary;
+  border: 4px solid $theme_border;
+
+  display: block;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}

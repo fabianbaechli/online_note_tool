@@ -14,9 +14,9 @@ export default class NoteListItem extends React.Component {
 
     return (
       <div className={classname} onClick={() => this.props.onSelect(this.props.index)}>
-        <span>{this.props.note.title}</span>
-        <span>{this.props.note.modified}</span>
-        <span>{this.props.note.content.substr(0, 20)}</span>
+        <p className="title">{this.props.note.title}</p>
+        <p className="modified">{this.props.note.modified}</p>
+        <p className="content">{this.props.note.content.substr(0, 20)}</p>
       </div>
     )
   }

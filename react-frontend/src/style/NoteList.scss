@@ -1,0 +1,15 @@
+@import "main.scss";
+
+$sidebar_color: darken($theme_background, 0.5);
+
+.NoteList {
+  display: block;
+  float: left;
+  overflow: hidden;
+  height: 100%;
+  width: $sidebar_width;
+
+  border-right: 5px solid $theme_border;
+
+  background-color: $sidebar_color;
+}

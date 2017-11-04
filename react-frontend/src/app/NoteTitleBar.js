@@ -10,9 +10,9 @@ export default class NoteTitleBar extends React.Component {
   render() {
     return (
       <div className="NoteTitleBar">
-        <span>{this.props.note.title}</span>
-        <span>{this.props.note.created}</span>
-        <span>{this.props.note.modified}</span>
+        <p className="title">{this.props.note.title}</p>
+        <p className="created">{this.props.note.created}</p>
+        <p className="modified">{this.props.note.modified}</p>
       </div>
     )
   }

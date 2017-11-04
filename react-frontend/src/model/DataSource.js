@@ -38,7 +38,7 @@ export default class DataSource {
 
   // Attempt to register as a new user in the backend
   register(username, password, retype_password, callback) {
-    backend_post("create_user", {
+    backend_post("register", {
       username,
       password,
       retype_password

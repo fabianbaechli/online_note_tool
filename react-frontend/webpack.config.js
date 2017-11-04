@@ -8,7 +8,9 @@ const BUILD_DIR = path.resolve(__dirname, "src/public")
 const APP_DIR = path.resolve(__dirname, "src/app")
 
 const config = {
-  entry: APP_DIR + "/boot.js",
+  entry: [
+    APP_DIR + "/boot.js"
+  ],
   output: {
     path: BUILD_DIR,
     filename: "bundle.js"
@@ -26,6 +28,7 @@ const config = {
         use:  [
           "style-loader",
           "css-loader",
+          "sass-loader",
           {
             loader: "postcss-loader",
             options: {

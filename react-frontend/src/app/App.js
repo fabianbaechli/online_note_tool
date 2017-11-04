@@ -1,7 +1,5 @@
 import React from "react"
 
-import style from "../style/App.scss"
-
 import k from "../model/Constants.js"
 import DataSource from "../model/DataSourceMock.js"
 
