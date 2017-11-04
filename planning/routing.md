@@ -15,13 +15,45 @@
 }
 ```
 
-## `POST '/create_user'`
-### reg
+## `POST '/invite'`
+### req
+```json
+{
+  "note_id": 1,
+  "username": "fabianbaechli"
+}
+```
+### res
+```json
+{
+  "ok": true / false,
+  "message": "user was invited"
+}
+```
+
+## `POST '/uninvite_user'`
+### req
+```json
+{
+  "note_id": 1,
+  "username": "fabianbaechli"
+}
+```
+### res
+```json
+{
+  "ok": true / false,
+  "message": "user was uninvited"
+}
+```
+
+## `POST '/register'`
+### req
 ```json
 {
   "username": "fabianbaechli",
-  "password": "hellow rold",
-  "retype_password": "hellow rold"
+  "password": "hello wrold",
+  "retype_password": "hello world"
 }
 ```
 
@@ -50,6 +82,21 @@
 }
 ```
 
+## `POST '/delete_note'`
+### req
+```json
+{
+  "note_id": 1
+}
+```
+### res
+```json
+{
+  "ok": true / false,
+  "message": "user was uninvited"
+}
+```
+
 ## `GET '/get_notes'`
 ### res
 ```json
@@ -58,7 +105,11 @@
   "title": "This is a header",
   "date_created": 25-12-2017,
   "date_modified": 27-12-2017,
-  "content": "lorem ipsum"
+  "content": "lorem ipsum",
+  "users": [{
+    "id": 0,
+    "username": "Example"
+    }]
 }
 ```
 
@@ -66,7 +117,7 @@
 ### req
 ```json
 {
-  "enty_id": 1,
+  "note_id": 1,
   "title": "This is a new header",
   "content": "mata sanctus est Lorem"
 }
