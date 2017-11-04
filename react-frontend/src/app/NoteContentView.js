@@ -10,7 +10,11 @@ export default class NoteContentView extends React.Component {
   render() {
     return (
       <div className="NoteContentView">
-        {this.props.note.content}
+        <textarea
+          className="content"
+          onChange={this.props.onChange}
+          value={this.props.note.content}
+        />
       </div>
     )
   }

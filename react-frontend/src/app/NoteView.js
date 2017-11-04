@@ -22,9 +22,9 @@ export default class NoteView extends React.Component {
 
     return (
       <div className="NoteView">
-        <NoteTitleBar note={this.props.note}/>
-        <NoteContentView note={this.props.note}/>
-        <NoteUserList note={this.props.note}/>
+        <NoteTitleBar note={this.props.note} onDelete={this.props.onDelete} onChange={this.props.onTitleChange}/>
+        <NoteContentView note={this.props.note} onChange={this.props.onContentChange}/>
+        <NoteUserList note={this.props.note} onInvite={this.props.onInvite} onUninvite={this.props.onUninvite}/>
       </div>
     )
   }

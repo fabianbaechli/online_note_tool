@@ -136,6 +136,36 @@ class MockServer {
       notes: this.notes.filter((note) => note.owner = this.session.username)
     })
   }
+
+  changeNote(id, title, content, callback) {
+    let found_note
+
+    this.notes.map((note) => {
+      if (note.id == id) found_note = note
+    })
+
+    if (!found_note) {
+      return callback({
+        ok: false,
+        message: "Note doesn't exists"
+      })
+    }
+
+    found_note.title = title
+    found_note.content = content
+
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+
+    found_note.date_modified = year + "-" + month + "-" + day
+
+    callback({
+      ok: true,
+      message: "Note changed"
+    })
+  }
 }
 
 const server = new MockServer()
@@ -218,5 +248,9 @@ export default class DataSource {
         })
       })
     })
+  }
+
+  changeNote(id, title, content, callback) {
+    server.changeNote(id, title, content, callback)
   }
 }

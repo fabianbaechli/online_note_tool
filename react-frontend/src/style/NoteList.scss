@@ -7,9 +7,8 @@ $sidebar_color: darken($theme_background, 0.5);
   float: left;
   overflow: hidden;
   height: 100%;
-  width: $sidebar_width;
+  width: 30%;
 
   border-right: 5px solid $theme_border;
-
   background-color: $sidebar_color;
 }

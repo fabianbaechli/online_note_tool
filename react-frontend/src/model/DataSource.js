@@ -80,4 +80,14 @@ export default class DataSource {
       })
     })
   }
+
+  changeNote(id, title, content, callback) {
+    backend_post("change_note", {
+      note_id: id,
+      title,
+      content
+    }, (response, xhr) => {
+      callback(xhr)
+    })
+  }
 }
