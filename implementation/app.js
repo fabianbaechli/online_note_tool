@@ -133,6 +133,7 @@ app.post("/create_note", (req, res) => {
     }
 });
 
+// Check if you are authenticated over a post request
 app.get("/authenticated", (req, res) => {
     if (req.session.authenticated)
         res.json({authenticated: req.session.authenticated, username: req.session.username})
@@ -140,10 +141,10 @@ app.get("/authenticated", (req, res) => {
         res.json({authenticated: false, username: undefined})
 });
 
-
+// Delete a note with an ID
 app.post("/delete_note", (req, res) => {
     if (req.session.authenticated) {
-        const queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = "+ req.body.note_id +"AND Contributor.`fk_user` = "+req.session.db_id;
+        const queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = " + req.body.note_id + "AND Contributor.`fk_user` = " + req.session.db_id;
         connection.query(queryString, (err, rows) => {
             if (!err)
                 res.json({ok: true, message: "deleted entry"})
@@ -155,6 +156,7 @@ app.post("/delete_note", (req, res) => {
     }
 });
 
+// Post request to change a notes properties
 app.post('change_note', (req, res) => {
     body = req.body;
     let entry_id = body.entry_id;
@@ -166,22 +168,24 @@ app.post('change_note', (req, res) => {
     let mm = createDate.getMonth() + 1;
     let yyyy = createDate.getFullYear();
 
-    let modified = ""+yyyy + mm + dd;
+    let modified = "" + yyyy + mm + dd;
 
+    // Check if authenticated, if yes, change the properties of the note and save it to the db
     if (sess.authenticated) {
-        const queryString = "UPDATE Note SET title="+title+", content="+content+", date_modified="+modified+" WHERE id = "+entry_id+";";
+        const queryString = "UPDATE Note SET title=" + title + ", content=" + content + ", date_modified=" + modified + " WHERE id = " + entry_id + ";";
         connection.query(queryString, (err, rows) => {
             if (!err)
-                res.json({ ok: true, message: "Note succesfully changed"});
+                res.json({ok: true, message: "Note succesfully changed"});
             else {
-                res.json({ ok: false, message: "Note was not changed"});
+                res.json({ok: false, message: "Note was not changed"});
             }
         })
     } else {
-        res.json({ authenticated: false })
+        res.json({authenticated: false})
     }
 });
 
+// Hosts the nodejs server on port 3000
 app.listen(3000, function (req, res) {
     console.log("app listening on 3000");
 });
