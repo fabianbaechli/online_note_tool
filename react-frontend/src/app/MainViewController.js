@@ -16,6 +16,7 @@ export default class MainViewController extends React.Component {
 
     this.fetchNoteList = this.fetchNoteList.bind(this)
     this.onSelectionChange = this.onSelectionChange.bind(this)
+    this.createNote = this.createNote.bind(this)
     this.deleteNote = this.deleteNote.bind(this)
     this.onTitleChange = this.onTitleChange.bind(this)
     this.onContentChange = this.onContentChange.bind(this)
@@ -49,6 +50,12 @@ export default class MainViewController extends React.Component {
   onSelectionChange(index) {
     this.setState({
       selected_index: index
+    })
+  }
+
+  createNote() {
+    this.props.datasource.createNote((response) => {
+      this.fetchNoteList()
     })
   }
 
@@ -97,6 +104,7 @@ export default class MainViewController extends React.Component {
           notes={this.state.notes}
           selected_index={this.state.selected_index}
           onSelectionChange={this.onSelectionChange}
+          onCreateNote={this.createNote}
         />
         <NoteView
           onDelete={this.deleteNote}

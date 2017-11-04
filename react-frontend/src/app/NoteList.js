@@ -18,6 +18,7 @@ export default class NoteList extends React.Component {
   render() {
     return (
       <div className="NoteList">
+        <button onClick={this.props.onCreateNote}>Create new Note</button>
       {
         this.props.notes.map((note, index) => {
           return (

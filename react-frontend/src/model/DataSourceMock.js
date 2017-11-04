@@ -3,51 +3,26 @@ import k from "./Constants.js"
 import Note from "./Note.js"
 import User from "./User.js"
 
+import { getDateString } from "./Utils.js"
+
 class MockServer {
   constructor() {
     this.users = [
       {
+        id: 0,
         username: "leonard",
         password: "pw1"
       }
     ]
 
+    this.noteid = 0
+    this.userid = 0
+
     this.session = {
       username: "leonard"
     }
 
-    this.notes = [
-      {
-        id: 0,
-        title: "Good Morning!",
-        date_created: "01:01:2017",
-        date_modified: "02:01:2017",
-        content: "What's up my friend",
-        users: [
-          {
-            id: 0,
-            username: "leonard"
-          },
-          {
-            id: 1,
-            username: "peter"
-          }
-        ]
-      },
-      {
-        id: 1,
-        title: "Good Evening!",
-        date_created: "01:01:2017",
-        date_modified: "02:01:2017",
-        content: "Sleep Well",
-        users: [
-          {
-            id: 0,
-            username: "leonard"
-          }
-        ]
-      }
-    ]
+    this.notes = []
   }
 
   authenticated(callback) {
@@ -72,7 +47,7 @@ class MockServer {
     }
 
     if (user_found.password == password) {
-      this.session = { username }
+      this.session = { id: user_found.id, username }
       return callback({
         ok: true,
         message: "Logged in"
@@ -106,9 +81,11 @@ class MockServer {
       })
     }
 
-    this.users.push({ username, password })
+    const userid = this.userid++
 
-    this.session = { username }
+    this.users.push({ userid, username, password })
+
+    this.session = { id: userid, username }
 
     callback({
       ok: true,
@@ -133,11 +110,45 @@ class MockServer {
 
     callback({
       ok: true,
-      notes: this.notes.filter((note) => note.owner = this.session.username)
+      notes: this.notes.filter((note) => {
+        return note.users.filter((user) => {
+          return user.username = this.session.username
+        }).length > 0
+      })
+    })
+  }
+
+  createNote(callback) {
+    if (this.session === undefined) {
+      return callback({
+        ok: false,
+        message: "Not logged in"
+      })
+    }
+
+    this.notes.push({
+      id: this.noteid++,
+      title: "Untitled",
+      date_created: getDateString(),
+      date_modified: getDateString(),
+      content: "No content yet",
+      users: [{ id: this.session.id, username: this.session.username }]
+    })
+
+    callback({
+      ok: true,
+      message: "Note created"
     })
   }
 
   changeNote(id, title, content, callback) {
+    if (this.session === undefined) {
+      return callback({
+        ok: false,
+        message: "Not logged in"
+      })
+    }
+
     let found_note
 
     this.notes.map((note) => {
@@ -154,12 +165,7 @@ class MockServer {
     found_note.title = title
     found_note.content = content
 
-    const date = new Date()
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-
-    found_note.date_modified = year + "-" + month + "-" + day
+    found_note.date_modified = getDateString()
 
     callback({
       ok: true,
@@ -248,6 +254,10 @@ export default class DataSource {
         })
       })
     })
+  }
+
+  createNote(callback) {
+    server.createNote(callback)
   }
 
   changeNote(id, title, content, callback) {
