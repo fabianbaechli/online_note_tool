@@ -387,7 +387,7 @@ app.post('/uninvite_user', (req, res) => {
                                 }
                               })
                             } else {
-                              res.json({ok: false, message = "Note was not deleted there are still contributors left" })
+                              res.json({ok: false, message: "Note was not deleted there are still contributors left" })
                             }
                           } else {
                             res.json({ok: false, message: "Could not delete the note completely, because not able to check if any Contributors are left"})
