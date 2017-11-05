@@ -15,7 +15,7 @@
 }
 ```
 
-## `POST '/invite'`
+## `POST '/invite_user'`
 ### req
 ```json
 {
@@ -101,6 +101,7 @@
 ### res
 ```json
 {
+"notes": [{
   "id": 1,
   "title": "This is a header",
   "date_created": 25-12-2017,
@@ -110,6 +111,7 @@
     "id": 0,
     "username": "Example"
     }]
+}]
 }
 ```
 
