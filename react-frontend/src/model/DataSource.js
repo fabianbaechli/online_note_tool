@@ -81,6 +81,12 @@ export default class DataSource {
     })
   }
 
+  createNote(callback) {
+    backend_post("create_note", {}, (response, xhr) => {
+      callback(response)
+    })
+  }
+
   changeNote(id, title, content, callback) {
     backend_post("change_note", {
       note_id: id,
