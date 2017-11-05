@@ -477,14 +477,14 @@ app.post('/change_note', (req, res) => {
           });
           return;
         } else {
-          queryString = "UPDATE Note SET title=" + title + ", content=" + content + ", date_modified=" + modified + " WHERE id = " + note_id + ";";
-          connection.query(queryString, (err, rows) => {
-            if (!err)
+          queryString = "UPDATE Note SET title=?, content=?, date_modified=? WHERE id = ?";
+          connection.query(queryString, [title, content, modified, note_id], (err, rows) => {
+            if (!err) {
               res.json({
                 ok: true,
                 message: "Note succesfully changed"
               });
-            else {
+            } else {
               res.json({
                 ok: false,
                 message: "Note was not changed"
