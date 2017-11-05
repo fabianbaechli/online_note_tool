@@ -11,4 +11,27 @@ $sidebar_color: darken($theme_background, 0.5);
 
   border-right: 5px solid $theme_border;
   background-color: $sidebar_color;
+
+  button {
+    width: 100%;
+    background-color: $theme_primary;
+    color: $theme_primary_text_light;
+    height: 40px;
+    font-size: 15px;
+    border: 0;
+    border-radius: 0px;
+  }
+
+  .createNoteButton {
+
+  }
+
+  .list {
+    height: calc(100% - 80px);
+    overflow-y: auto;
+  }
+
+  .logoutButton {
+
+  }
 }

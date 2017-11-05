@@ -152,9 +152,11 @@ class MockServer {
     }
 
     const notes = JSON.parse(localStorage.getItem("notes"))
+    const noteid = JSON.parse(localStorage.getItem("noteid"))
+    localStorage.setItem("noteid", noteid + 1)
 
     notes.push({
-      id: this.noteid++,
+      id: noteid,
       title: "Untitled",
       date_created: getDateString(),
       date_modified: getDateString(),

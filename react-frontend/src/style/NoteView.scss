@@ -8,4 +8,16 @@
   width: 70%;
 
   background-color: $theme_background;
+
+  position: relative;
+
+  .NoNoteSelected {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+
+    font-size: 20px;
+    font-weight: 600;
+  }
 }

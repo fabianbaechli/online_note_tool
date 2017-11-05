@@ -18,21 +18,23 @@ export default class NoteList extends React.Component {
   render() {
     return (
       <div className="NoteList">
-        <button onClick={this.props.onCreateNote}>Create new Note</button>
-        <button onClick={this.props.onLogout}>Logout</button>
-      {
-        this.props.notes.map((note, index) => {
-          return (
-            <NoteListItem
-              note={note}
-              key={note.id}
-              index={index}
-              onSelect={this.selectionChanged}
-              selected={index == this.props.selected_index}
-            />
-          )
-        })
-      }
+        <button className="createNoteButton" onClick={this.props.onCreateNote}>Create new Note</button>
+        <div className="list">
+          {
+            this.props.notes.map((note, index) => {
+              return (
+                <NoteListItem
+                  note={note}
+                  key={note.id}
+                  index={index}
+                  onSelect={this.selectionChanged}
+                  selected={index == this.props.selected_index}
+                />
+              )
+            })
+          }
+        </div>
+        <button className="logoutButton" onClick={this.props.onLogout}>Logout</button>
       </div>
     )
   }
