@@ -138,7 +138,7 @@ app.get("/get_notes", (req, res) => {
     })
   }
 
-  const queryString = " SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM NOTE AS N " +
+  let queryString = " SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM NOTE AS N " +
     "INNER JOIN Contributor as C on N.id = C.fk_note INNER JOIN User as U on U.id = C.fk_user " +
     "WHERE U.id = ?";
 
@@ -152,10 +152,10 @@ app.get("/get_notes", (req, res) => {
     }
 
     const notes = rows
-    const finished_user_fetches = 0
+    let finished_user_fetches = 0
 
     notes.map((note, index) => {
-      const queryString = "SELECT U.id, U.username FROM User AS U INNER JOIN Contributor AS C on U.id = C.fk_user " +
+      let queryString = "SELECT U.id, U.username FROM User AS U INNER JOIN Contributor AS C on U.id = C.fk_user " +
         "INNER JOIN Note AS N on N.id = C.fk_note WHERE N.id = ?"
 
       connection.query(queryString, [note.id], (err, rows) => {
