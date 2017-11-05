@@ -288,6 +288,14 @@ class MockServer {
       })
     }
 
+    // Make sure the user isn't already a contributor
+    if (found_note.users.filter((user) => user.username == username).length > 0) {
+      return callback({
+        ok: false,
+        message: "User is already a contributor"
+      })
+    }
+
     found_note.users.push({
       id: found_user.id,
       username: found_user.username
