@@ -130,8 +130,9 @@ app.post('/login', (req, res) => {
 
 // Get request, that returns all the Notes that belong to the User that is logged in
 app.get("/get_notes", (req, res) => {
-  sess = req.session;
-  if (sess.authenticated) {
+
+
+
     var queryString = "SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM Note AS N " +
       "INNER JOIN Contributor as C on N.id = C.fk_note INNER JOIN User as U on U.id = C.fk_user " +
       "WHERE U.id = " + connection.escape(sess.db_id);
@@ -147,12 +148,58 @@ app.get("/get_notes", (req, res) => {
           });
       }
     })
-  } else {
-    res.json({
+
+
+
+
+  const session = req.session;
+  if (!session.authenticated) {
+    return res.json({
       ok: false,
       message: "Not logged in"
     })
   }
+
+  const queryString = " SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM NOTE AS N " +
+    "INNER JOIN Contributor as C on N.id = C.fk_note INNER JOIN User as U on U.id = C.fk_user " +
+    "WHERE U.id = ?";
+
+  // Fetches the list of notes from the database
+  connection.query(queryString, [session.db_id], (err, rows) => {
+    if (err) {
+      return res.json({
+        ok: false,
+        message: "Could not load notes from database"
+      })
+    }
+
+    const notes = rows
+    const finished_user_fetches = 0
+
+    notes.map((note, index) => {
+      const queryString = "SELECT U.id, U.username FROM User AS U INNER JOIN Contributor AS C on U.id = C.fk_user " +
+        "INNER JOIN Note AS N on N.id = C.fk_note WHERE N.id = ?"
+
+      connection.query(queryString, [note.id], (err, rows) => {
+        if (err) {
+          return res.json({
+            ok: false,
+            message: "Could not load note contributors from database"
+          })
+        }
+
+        notes[index].users = rows
+        finished_user_fetches++
+
+        if (finished_user_fetches == notes.length) {
+          res.json({
+            ok: true,
+            notes: notes
+          })
+        }
+      })
+    })
+  })
 });
 
 // Post request to create a note
