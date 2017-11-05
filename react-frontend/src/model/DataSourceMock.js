@@ -23,7 +23,10 @@ class MockServer {
     this.noteid = 0
     this.userid = 1
 
-    this.session = undefined
+    this.session = {
+      id: 0,
+      username: "leonard"
+    }
 
     this.notes = []
   }
