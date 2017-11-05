@@ -461,7 +461,7 @@ app.post('/change_note', (req, res) => {
   let mm = createDate.getMonth() + 1;
   let yyyy = createDate.getFullYear();
 
-  let modified = "" + yyyy + mm + dd;
+  let modified = "" + yyyy + "-" + mm + "-" + dd;
 
   // Check if authenticated, if yes, change the properties of the note and save it to the db
   if (sess.authenticated) {
