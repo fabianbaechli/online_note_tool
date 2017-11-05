@@ -182,42 +182,45 @@ app.get("/get_notes", (req, res) => {
 
 // Post request to create a note
 app.post("/create_note", (req, res) => {
-  if (req.session.authenticated) {
-    let createDate = new Date();
-    let dd = createDate.getDate();
-    let mm = createDate.getMonth() + 1;
-    let yyyy = createDate.getFullYear();
+  const session = req.session
 
-    var queryString = "INSERT INTO `Note` (`title`, `date_created`, `date_modified`, `content`) " +
-      "VALUES" + "(\"New note\", \"" + yyyy + "-" + mm + "-" + dd + "\",\"" + yyyy + "-" + mm + "-" + dd + "\"," + "\"\"" + ");"
-      console.log(queryString);
-    connection.query(queryString, (err, results) => {
-      if (!err) {
-        queryString = "INSERT INTO `Contributor` (`fk_user`, `fk_note`) VALUES (" + connection.escape(req.session.db_id) + "," + connection.escape(results.insertId) + ")";
-        connection.query(queryString, (err, results) => {
-          if (!err) {
-            res.json({
-              ok: true,
-              message: "created contributor"
-            });
-            return;
-          } else {
-            res.json({
-              ok: false,
-              message: "contributor not created"
-            });
-          }
-        })
-      } else {
-        res.json({ ok: false, message: "note not created"})
-      }
-    });
-  } else {
-    res.json({
+  if (!session.authenticated) {
+    return res.json({
       ok: false,
-      message: "not logged in"
-    });
+      message: "Not logged in"
+    })
   }
+
+  const createDate = new Date();
+  const dd = createDate.getDate();
+  const mm = createDate.getMonth() + 1;
+  const yyyy = createDate.getFullYear();
+
+  const queryString = "INSERT INTO Note (title, date_created, date_modified, content) VALUES (?, ?, ?, ?)"
+
+  connection.query(queryString, [], (err, rows) => {
+    if (err) {
+      return res.json({
+        ok: false,
+        message: "Could not create note"
+      })
+    }
+
+    const queryString = "INSERT INTO Contributor (fk_user, fk_note) VALUES (?, ?)"
+    connection.query(queryString, [session.db_id, rows.insertId], (err, rows) => {
+      if (err) {
+        return res.json({
+          ok: false,
+          message: "Could not create contributor"
+        })
+      }
+
+      res.json({
+        ok: true,
+        message: "Created note"
+      })
+    })
+  })
 });
 
 // Check if you are authenticated over a post request
