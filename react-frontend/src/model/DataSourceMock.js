@@ -394,7 +394,7 @@ export default class DataSource {
         this.state.username = null
         callback(response)
       }
-      if (this.onUpdate) this.onUpdate()
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
@@ -409,14 +409,14 @@ export default class DataSource {
       }
 
       callback(response)
-      if (this.onUpdate) this.onUpdate()
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
   logout(callback) {
     server.logout((response) => {
       callback(response)
-      if (this.onUpdate) this.onUpdate()
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 

@@ -22,6 +22,7 @@ export default class MainViewController extends React.Component {
     this.onContentChange = this.onContentChange.bind(this)
     this.invite = this.invite.bind(this)
     this.uninvite = this.uninvite.bind(this)
+    this.logout = this.logout.bind(this)
 
     this.state = {
       notes: [],
@@ -104,6 +105,12 @@ export default class MainViewController extends React.Component {
     })
   }
 
+  logout() {
+    this.props.datasource.logout((response) => {
+      // do nothing
+    })
+  }
+
   render() {
     return (
       <div className="MainViewController">
@@ -112,6 +119,7 @@ export default class MainViewController extends React.Component {
           selected_index={this.state.selected_index}
           onSelectionChange={this.onSelectionChange}
           onCreateNote={this.createNote}
+          onLogout={this.logout}
         />
         <NoteView
           onDelete={this.deleteNote}

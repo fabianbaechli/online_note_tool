@@ -106,7 +106,7 @@ export default class DataSource {
   }
 
   invite(id, username, callback) {
-    backend_post("invite", {
+    backend_post("invite_user", {
       note_id: id,
       username
     }, (response) => {

@@ -1,7 +1,7 @@
 import React from "react"
 
 import k from "../model/Constants.js"
-import DataSource from "../model/DataSource.js"
+import DataSource from "../model/DataSourceMock.js"
 
 import AuthenticationController from "./AuthenticationController.js"
 import MainViewController from "./MainViewController.js"
