@@ -5,7 +5,7 @@ let session = require('express-session');
 let path = require('path');
 let app = express();
 
-app.use(express.static('frontend'));
+app.use(express.static('../react-frontend/src'));
 app.use(session({
   secret: 'zdsvadushvbadsv'
 }));
@@ -31,10 +31,7 @@ let connection = sql.createConnection({
   database: 'notes_tool'
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+
 
 // Connect to Database
 connection.connect(function(err) {
@@ -52,8 +49,11 @@ app.get("/", (req, res) => {
 
 // Post request to create a user
 app.post("/register", (req, res) => {
-  sess = body.session;
+  sess = req.session;
   console.log(req.body);
+
+
+
   let username = req.body['username'];
   let password = req.body['password'];
   let secondPassword = req.body['retype_password'];
@@ -158,14 +158,14 @@ app.get("/get_notes", (req, res) => {
 // Post request to create a note
 app.post("/create_note", (req, res) => {
   if (req.session.authenticated) {
-    body = req.body;
     let createDate = new Date();
     let dd = createDate.getDate();
     let mm = createDate.getMonth() + 1;
     let yyyy = createDate.getFullYear();
 
     var queryString = "INSERT INTO `Note` (`title`, `date_created`, `date_modified`, `content`) " +
-      "VALUES" + "(`New note`, `" + yyyy + "-" + mm + "-" + dd + "`,`" + yyyy + "-" + mm + "-" + dd + "`," + "``" + ");"
+      "VALUES" + "(\"New note\", \"" + yyyy + "-" + mm + "-" + dd + "\",\"" + yyyy + "-" + mm + "-" + dd + "\"," + "\"\"" + ");"
+      console.log(queryString);
     connection.query(queryString, (err, results) => {
       if (!err) {
         queryString = "INSERT INTO `Contributor` (`fk_user`, `fk_note`) VALUES (" + connection.escape(req.session.db_id) + "," + connection.escape(results.insertId) + ")";
@@ -173,15 +173,18 @@ app.post("/create_note", (req, res) => {
           if (!err) {
             res.json({
               ok: true,
-              message: "created entry"
+              message: "created contributor"
             });
             return;
+          } else {
+            res.json({
+              ok: false,
+              message: "contributor not created"
+            });
           }
         })
-        res.json({
-          ok: false,
-          message: "entry not created"
-        });
+      } else {
+        res.json({ ok: false, message: "note not created"})
       }
     });
   } else {
@@ -290,13 +293,14 @@ app.post('/invite_user', (req, res) => {
             });
           }
         })
+    });
       } else {
         res.json({
           ok: false,
           message: "not logged in"
         });
       }
-    });
+
 });
 
 // Removes User from Contribution of this note
@@ -333,12 +337,12 @@ app.post('/uninvite_user', (req, res) => {
                       if (!err) {
                         res.json({
                           ok: true,
-                          message: "succesfully uninvited other user from this note";
+                          message: "succesfully uninvited other user from this note"
                         });
                       } else {
                         res.json({
                           ok: false,
-                          message: "Could not uninvite other user to this note";
+                          message: "Could not uninvite other user to this note"
                         });
                       }
                     })
@@ -368,13 +372,14 @@ app.post('/uninvite_user', (req, res) => {
             });
           }
         })
+    });
       } else {
         res.json({
           ok: false,
           message: "not logged in"
         });
       }
-    });
+
 });
 
 // Delete a note with an ID

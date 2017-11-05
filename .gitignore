@@ -1,2 +1,6 @@
 .DS_Store
 implementation/node_modules/
+.idea/
+implementation/npm-debug.log
+node_modules/
+npm-debug.log
