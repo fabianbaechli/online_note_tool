@@ -465,6 +465,7 @@ app.post('/change_note', (req, res) => {
 
   // Check if authenticated, if yes, change the properties of the note and save it to the db
   if (sess.authenticated) {
+
     // Check if user is contributor to note
     var queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_user` = " + req.session.db_id + " AND Contributor.`fk_note` = " + note_id;
     connection.query(queryString, (err, rows) => {
@@ -476,27 +477,27 @@ app.post('/change_note', (req, res) => {
           });
           return;
         } else {
-          res.json({
-            ok: false,
-            message: "Could not look up user if is contributor"
-          });
-          return;
+          queryString = "UPDATE Note SET title=" + title + ", content=" + content + ", date_modified=" + modified + " WHERE id = " + note_id + ";";
+          connection.query(queryString, (err, rows) => {
+            if (!err)
+              res.json({
+                ok: true,
+                message: "Note succesfully changed"
+              });
+            else {
+              res.json({
+                ok: false,
+                message: "Note was not changed"
+              });
+            }
+          })
         }
-      }
-    })
-
-    queryString = "UPDATE Note SET title=" + title + ", content=" + content + ", date_modified=" + modified + " WHERE id = " + note_id + ";";
-    connection.query(queryString, (err, rows) => {
-      if (!err)
-        res.json({
-          ok: true,
-          message: "Note succesfully changed"
-        });
-      else {
+      } else {
         res.json({
           ok: false,
-          message: "Note was not changed"
+          message: "Could not look up user if is contributor"
         });
+        return;
       }
     })
   } else {
@@ -510,6 +511,11 @@ app.post('/change_note', (req, res) => {
 // Get request to logout, destroys the session
 app.get('/logout', (req, res) => {
   req.session.destroy();
+
+  res.json({
+    ok: true,
+    message: "Session destroyed"
+  })
 });
 
 // Hosts the nodejs server on port 3000
