@@ -2,6 +2,55 @@
 
 .NoteContentView {
   width: 100%;
-  height: calc(100% - 100px);
-  padding: 20px 10px;
+  height: calc(100% - 90px);
+
+  .toggleView {
+    width: 100%;
+    height: 30px;
+    background-color: $theme_primary;
+    color: $theme_primary_text_light;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 0px;
+  }
+
+  .renderedMarkdown {
+    overflow-y: auto;
+    padding: 20px 10px;
+    height: calc(100% - 30px);
+    width: 100%;
+
+    h1, h2, h3, h4, h5, h6 {
+      border-left: 6px solid $theme_primary;
+      padding-left: 4px;
+
+      margin-bottom: 12px;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    blockquote, pre {
+      margin-bottom: 5px;
+      background-color: darken($theme_background, 10%);
+      border-left: 6px solid darken($theme_background, 20%);
+      padding: 2px 0 2px 4px;
+    }
+
+    .NoteContentViewSource {
+      width: 100%;
+      height: calc(100% - 30px);
+      resize: none;
+      background-color: transparent;
+      border: none;
+
+      font-size: 15px;
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
 }

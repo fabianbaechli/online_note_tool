@@ -1,6 +1,8 @@
 import React from "react"
 import { render } from "react-dom"
 
+import style from "../style/AuthenticationController.scss"
+
 import k from "../model/Constants.js"
 
 /*

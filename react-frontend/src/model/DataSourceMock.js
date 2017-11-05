@@ -7,38 +7,38 @@ import { getDateString } from "./Utils.js"
 
 class MockServer {
   constructor() {
-    this.users = [
-      {
-        id: 0,
-        username: "leonard",
-        password: "pw1"
-      },
-      {
-        id: 1,
-        username: "peter",
-        password: "pw2"
-      }
-    ]
-
-    this.noteid = 0
-    this.userid = 1
-
-    this.session = undefined
-
-    this.notes = []
+    if (localStorage.getItem("notetool_exists") === null) {
+      localStorage.setItem("users", JSON.stringify([]))
+      localStorage.setItem("noteid", JSON.stringify(0))
+      localStorage.setItem("userid", JSON.stringify(0))
+      localStorage.setItem("session", JSON.stringify(null))
+      localStorage.setItem("notes", JSON.stringify([]))
+      localStorage.setItem("notetool_exists", JSON.stringify("created!"))
+    }
   }
 
   authenticated(callback) {
-    callback({
-      authenticated: this.session !== undefined,
-      username: (this.session ? this.session.username : undefined)
-    })
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (session) {
+      callback({
+        authenticated: true,
+        username: session.username
+      })
+    } else {
+      callback({
+        authenticated: false,
+        username: null
+      })
+    }
   }
 
   login(username, password, callback) {
+    const users = JSON.parse(localStorage.getItem("users"))
+
     let user_found
 
-    this.users.map((user) => {
+    users.map((user) => {
       if (user.username == username) user_found = user
     })
 
@@ -50,7 +50,12 @@ class MockServer {
     }
 
     if (user_found.password == password) {
-      this.session = { id: user_found.id, username }
+
+      localStorage.setItem("session", JSON.stringify({
+        id: user_found.id,
+        username: username
+      }))
+
       return callback({
         ok: true,
         message: "Logged in"
@@ -71,9 +76,11 @@ class MockServer {
       })
     }
 
+    const users = JSON.parse(localStorage.getItem("users"))
+
     let user_found
 
-    this.users.map((user) => {
+    users.map((user) => {
       if (user.username == username) user_found = user
     })
 
@@ -84,11 +91,19 @@ class MockServer {
       })
     }
 
-    const userid = this.userid++
+    const userid = JSON.parse(localStorage.getItem("userid"))
+    localStorage.setItem("userid", JSON.stringify(userid + 1))
 
-    this.users.push({ userid, username, password })
+    localStorage.setItem("users", JSON.stringify(users.concat({
+      id: userid,
+      username: username,
+      password: password
+    })))
 
-    this.session = { id: userid, username }
+    localStorage.setItem("session", JSON.stringify({
+      id: userid,
+      username: username
+    }))
 
     callback({
       ok: true,
@@ -97,46 +112,59 @@ class MockServer {
   }
 
   logout(callback) {
-    this.session = undefined
+    localStorage.setItem("session", null)
+
     callback({
       ok: true
     })
   }
 
   fetchNoteList(callback) {
-    if (this.session === undefined) {
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (this.session === null) {
       return callback({
         ok: false,
         message: "Not logged in"
       })
     }
 
+    const notes = JSON.parse(localStorage.getItem("notes"))
+
     callback({
       ok: true,
-      notes: this.notes.filter((note) => {
+      notes: notes.filter((note) => {
         return note.users.filter((user) => {
-          return user.username == this.session.username
+          return user.username == session.username
         }).length > 0
       })
     })
   }
 
   createNote(callback) {
-    if (this.session === undefined) {
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (session === null) {
       return callback({
         ok: false,
         message: "Not logged in"
       })
     }
 
-    this.notes.push({
-      id: this.noteid++,
+    const notes = JSON.parse(localStorage.getItem("notes"))
+    const noteid = JSON.parse(localStorage.getItem("noteid"))
+    localStorage.setItem("noteid", noteid + 1)
+
+    notes.push({
+      id: noteid,
       title: "Untitled",
       date_created: getDateString(),
       date_modified: getDateString(),
       content: "No content yet",
-      users: [{ id: this.session.id, username: this.session.username }]
+      users: [{ id: session.id, username: session.username }]
     })
+
+    localStorage.setItem("notes", JSON.stringify(notes))
 
     callback({
       ok: true,
@@ -145,16 +173,20 @@ class MockServer {
   }
 
   changeNote(id, title, content, callback) {
-    if (this.session === undefined) {
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (session === null) {
       return callback({
         ok: false,
         message: "Not logged in"
       })
     }
 
+    const notes = JSON.parse(localStorage.getItem("notes"))
+
     let found_note
 
-    this.notes.map((note) => {
+    notes.map((note) => {
       if (note.id == id) found_note = note
     })
 
@@ -167,8 +199,9 @@ class MockServer {
 
     found_note.title = title
     found_note.content = content
-
     found_note.date_modified = getDateString()
+
+    localStorage.setItem("notes", JSON.stringify(notes))
 
     callback({
       ok: true,
@@ -177,16 +210,20 @@ class MockServer {
   }
 
   deleteNote(id, callback) {
-    if (this.session === undefined) {
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (session === null) {
       return callback({
         ok: false,
         message: "Not logged in"
       })
     }
 
+    let notes = JSON.parse(localStorage.getItem("notes"))
+
     let found_note
 
-    this.notes.map((note) => {
+    notes.map((note) => {
       if (note.id == id) found_note = note
     })
 
@@ -197,23 +234,11 @@ class MockServer {
       })
     }
 
-    // Check if the session user is a contributor of this note
-    let found_user
-
-    found_note.users.map((user) => {
-      if (user.username == this.session.username) found_user = user
-    })
-
-    if (!found_user) {
-      return callback({
-        ok: false,
-        message: "Not a contributor of this note"
-      })
-    }
-
-    this.notes = this.notes.filter((note) => {
+    notes = notes.filter((note) => {
       return note.id != id
     })
+
+    localStorage.setItem("notes", JSON.stringify(notes))
 
     callback({
       ok: true,
@@ -222,17 +247,21 @@ class MockServer {
   }
 
   invite(id, username, callback) {
-    if (this.session === undefined) {
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (session === null) {
       return callback({
         ok: false,
         message: "Not logged in"
       })
     }
 
+    const notes = JSON.parse(localStorage.getItem("notes"))
+
     // Check if the note exists
     let found_note
 
-    this.notes.map((note) => {
+    notes.map((note) => {
       if (note.id == id) found_note = note
     })
 
@@ -243,10 +272,12 @@ class MockServer {
       })
     }
 
+    const users = JSON.parse(localStorage.getItem("users"))
+
     // Check if user exists
     let found_user
 
-    this.users.map((user) => {
+    users.map((user) => {
       if (user.username == username) found_user = user
     })
 
@@ -257,10 +288,20 @@ class MockServer {
       })
     }
 
+    // Make sure the user isn't already a contributor
+    if (found_note.users.filter((user) => user.username == username).length > 0) {
+      return callback({
+        ok: false,
+        message: "User is already a contributor"
+      })
+    }
+
     found_note.users.push({
       id: found_user.id,
       username: found_user.username
     })
+
+    localStorage.setItem("notes", JSON.stringify(notes))
 
     callback({
       ok: true,
@@ -269,17 +310,21 @@ class MockServer {
   }
 
   uninvite(id, username, callback) {
-    if (this.session === undefined) {
+    const session = JSON.parse(localStorage.getItem("session"))
+
+    if (session === null) {
       return callback({
         ok: false,
         message: "Not logged in"
       })
     }
 
+    let notes = JSON.parse(localStorage.getItem("notes"))
+
     // Check if the note exists
     let found_note
 
-    this.notes.map((note) => {
+    notes.map((note) => {
       if (note.id == id) found_note = note
     })
 
@@ -290,10 +335,12 @@ class MockServer {
       })
     }
 
+    const users = JSON.parse(localStorage.getItem("users"))
+
     // Check if user exists
     let found_user
 
-    this.users.map((user) => {
+    users.map((user) => {
       if (user.username == username) found_user = user
     })
 
@@ -309,10 +356,12 @@ class MockServer {
     })
 
     if (found_note.users.length == 0) {
-      this.notes = this.notes.filter((note) => {
+      notes = notes.filter((note) => {
         return note.id != found_note.id
       })
     }
+
+    localStorage.setItem("notes", JSON.stringify(notes))
 
     callback({
       ok: true,
@@ -330,7 +379,7 @@ export default class DataSource {
   constructor(onUpdate) {
     this.state = {
       authenticated: k.NotAuthenticated,
-      username: undefined
+      username: null
     }
     this.onUpdate = onUpdate
   }
@@ -352,10 +401,10 @@ export default class DataSource {
         callback(response)
       } else {
         this.state.authenticated = k.NotAuthenticated
-        this.state.username = undefined
+        this.state.username = null
         callback(response)
       }
-      if (this.onUpdate) this.onUpdate()
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
@@ -366,18 +415,18 @@ export default class DataSource {
         this.state.username = username
       } else {
         this.state.authenticated = k.NotAuthenticated
-        this.state.username = undefined
+        this.state.username = null
       }
 
       callback(response)
-      if (this.onUpdate) this.onUpdate()
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
   logout(callback) {
     server.logout((response) => {
       callback(response)
-      if (this.onUpdate) this.onUpdate()
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 

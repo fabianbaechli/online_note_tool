@@ -12,6 +12,7 @@ export const backend_get = (route, callback) => {
 export const backend_post = (route, payload, callback) => {
   const xhr = new XMLHttpRequest()
   xhr.open("POST", k.BackendURL + "/" + route, true)
+  xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.addEventListener("load", () => callback(JSON.parse(xhr.responseText, xhr)))
   xhr.send(JSON.stringify(payload))
 }

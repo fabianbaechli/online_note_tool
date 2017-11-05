@@ -5,7 +5,7 @@ let session = require('express-session');
 let path = require('path');
 let app = express();
 
-app.use(express.static('frontend'));
+app.use(express.static('../react-frontend/src'));
 app.use(session({
   secret: 'zdsvadushvbadsv'
 }));
@@ -31,10 +31,7 @@ let connection = sql.createConnection({
   database: 'notes_tool'
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+
 
 // Connect to Database
 connection.connect(function(err) {
@@ -53,6 +50,9 @@ app.get("/", (req, res) => {
 // Post request to create a user
 app.post("/register", (req, res) => {
   sess = req.session;
+  console.log(req.body);
+
+
 
   let username = req.body['username'];
   let password = req.body['password'];
@@ -130,66 +130,106 @@ app.post('/login', (req, res) => {
 
 // Get request, that returns all the Notes that belong to the User that is logged in
 app.get("/get_notes", (req, res) => {
-  sess = req.session;
-  if (sess.authenticated) {
-    var queryString = "SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM Note AS N " +
-      "INNER JOIN Contributor as C on N.id = C.fk_note INNER JOIN User as U on U.id = C.fk_user " +
-      "WHERE U.id = " + connection.escape(sess.db_id);
-    console.log(queryString);
-    connection.query(queryString, (err, rows) => {
-      if (!err) {
-        queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = " +
-
-
-          res.json({
-            ok: true,
-            notes: rows
-          });
-      }
-    })
-  } else {
-    res.json({
+  const session = req.session;
+  if (!session.authenticated) {
+    return res.json({
       ok: false,
       message: "Not logged in"
     })
   }
+
+  let queryString = " SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM NOTE AS N " +
+    "INNER JOIN Contributor as C on N.id = C.fk_note INNER JOIN User as U on U.id = C.fk_user " +
+    "WHERE U.id = ?";
+
+  // Fetches the list of notes from the database
+  connection.query(queryString, [session.db_id], (err, rows) => {
+    if (err) {
+      return res.json({
+        ok: false,
+        message: "Could not load notes from database"
+      })
+    }
+
+    const notes = rows
+    let finished_user_fetches = 0
+
+    if (notes.length == 0) {
+      return res.json({
+        ok: true,
+        notes: []
+      })
+    }
+
+    notes.map((note, index) => {
+      let queryString = "SELECT U.id, U.username FROM User AS U INNER JOIN Contributor AS C on U.id = C.fk_user " +
+        "INNER JOIN Note AS N on N.id = C.fk_note WHERE N.id = ?"
+
+      connection.query(queryString, [note.id], (err, rows) => {
+        if (err) {
+          return res.json({
+            ok: false,
+            message: "Could not load note contributors from database"
+          })
+        }
+
+        notes[index].users = rows
+        finished_user_fetches++
+
+        if (finished_user_fetches == notes.length) {
+          res.json({
+            ok: true,
+            notes: notes
+          })
+        }
+      })
+    })
+  })
 });
 
 // Post request to create a note
 app.post("/create_note", (req, res) => {
-  if (req.session.authenticated) {
-    body = req.body;
-    let createDate = new Date();
-    let dd = createDate.getDate();
-    let mm = createDate.getMonth() + 1;
-    let yyyy = createDate.getFullYear();
+  const session = req.session
 
-    var queryString = "INSERT INTO `Note` (`title`, `date_created`, `date_modified`, `content`) " +
-      "VALUES" + "(`New note`, `" + yyyy + "-" + mm + "-" + dd + "`,`" + yyyy + "-" + mm + "-" + dd + "`," + "``" + ");"
-    connection.query(queryString, (err, results) => {
-      if (!err) {
-        queryString = "INSERT INTO `Contributor` (`fk_user`, `fk_note`) VALUES (" + connection.escape(req.session.db_id) + "," + connection.escape(results.insertId) + ")";
-        connection.query(queryString, (err, results) => {
-          if (!err) {
-            res.json({
-              ok: true,
-              message: "created entry"
-            });
-            return;
-          }
-        })
-        res.json({
-          ok: false,
-          message: "entry not created"
-        });
-      }
-    });
-  } else {
-    res.json({
+  if (!session.authenticated) {
+    return res.json({
       ok: false,
-      message: "not logged in"
-    });
+      message: "Not logged in"
+    })
   }
+
+  const createDate = new Date();
+  const dd = createDate.getDate();
+  const mm = createDate.getMonth() + 1;
+  const yyyy = createDate.getFullYear();
+
+  const date_created = "" + yyyy + "-" + mm + "-" + dd;
+
+  const queryString = "INSERT INTO Note (title, date_created, date_modified, content) VALUES (?, ?, ?, ?)"
+
+  connection.query(queryString, ["Untitled", date_created, date_created, ""], (err, rows) => {
+    if (err) {
+      return res.json({
+        ok: false,
+        message: "Could not create note"
+      })
+    }
+
+    const queryString = "INSERT INTO Contributor (fk_user, fk_note) VALUES (?, ?)"
+    connection.query(queryString, [session.db_id, rows.insertId], (err, rows) => {
+      if (err) {
+        return res.json({
+          ok: false,
+          message: "Could not create contributor"
+        })
+      }
+
+      res.json({
+        ok: true,
+        message: "Created note"
+      })
+    })
+  })
 });
 
 // Check if you are authenticated over a post request
@@ -290,14 +330,16 @@ app.post('/invite_user', (req, res) => {
                     });
                 }
             });
-
-        });
-    } else {
+          }
+        })
+    });
+      } else {
         res.json({
             ok: false,
             message: "not logged in"
         });
-    }
+      }
+
 });
 
 // Removes User from Contribution of this note
@@ -332,10 +374,27 @@ app.post('/uninvite_user', (req, res) => {
                     queryString = "DELETE FROM Contributor WHERE Contributor.`fk_user` = " + userId + " AND Contributor.`fk_note` = " + body.note_id;
                     connection.query(queryString, (err, rows) => {
                       if (!err) {
-                        res.json({
-                          ok: true,
-                          message: "succesfully uninvited other user from this note"
-                        });
+                        // Check if this was the last Contributor to this not, if yes delete note
+                        queryString = "SELECT id FROM Contributor WHERE Contributor.`fk_note` = "+body.note_id;
+                        connection.query(queryString, (err, rows) => {
+                          if (!err) {
+                            if (rows.length === 0) {
+                              // Delete Note
+                              queryString = "DELETE FROM Note WHERE Note.`id` = "+body.note_id;
+                              connection.query(queryString, (err, rows) => {
+                                if (!err) {
+                                  res.json({ ok: true, message: "Succesfully deleted Note and Contributor"});
+                                } else {
+                                  res.json({ok: false, message: "Could not delete Note, something went wrong"})
+                                }
+                              })
+                            } else {
+                              res.json({ok: false, message: "Note was not deleted there are still contributors left" })
+                            }
+                          } else {
+                            res.json({ok: false, message: "Could not delete the note completely, because not able to check if any Contributors are left"})
+                          }
+                        })
                       } else {
                         res.json({
                           ok: false,
@@ -382,37 +441,30 @@ app.post('/uninvite_user', (req, res) => {
 // Delete a note with an ID
 app.post("/delete_note", (req, res) => {
   if (req.session.authenticated) {
-
-    var queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = " + req.body.note_id + "AND Contributor.`fk_user` = " + req.session.db_id;
-    connection.query(queryString, (err, rows) => {
-      if (!err)
-        res.json({
-          ok: true,
-          message: "deleted entry"
-        })
-      else
-        res.json({
-          ok: false,
-          message: "couldn't delete entry"
-        })
-    });
-
-    queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = " + req.body.note_id;
-    connection.query(queryString, (err, rows) => {
+    var queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = ?";
+    connection.query(queryString, [req.body.note_id], (err, rows) => {
       if (!err) {
-        if (rows.length === 0) {
-          // no Contributors to this note delete it
-          queryString = "DELETE FROM Note WHERE Note.`id` = " + req.body.note_id;
-          connection.query(queryString, (err, rows) => {
-            if (!err) {
-              console.log("Succesfully deleted Note because no contributors are there");
-            } else {
-              console.log("Something went wrong while deleting the note from the table");
-            }
-          });
-        }
+        queryString = "DELETE FROM Note WHERE Note.`id` = ?";
+        connection.query(queryString, [req.body.note_id], (err, rows) => {
+          if (!err) {
+            return res.json({
+              ok: false,
+              message: "Deleted note"
+            })
+          } else {
+            return res.json({
+              ok: false,
+              message: "Could not delete note"
+            })
+          }
+        });
+      } else {
+        return res.json({
+          ok: false,
+          message: "Could not delete contributors"
+        })
       }
-    })
+    });
   } else {
     res.json({
       ok: false,
@@ -422,7 +474,7 @@ app.post("/delete_note", (req, res) => {
 });
 
 // Post request to change a notes properties
-app.post('change_note', (req, res) => {
+app.post('/change_note', (req, res) => {
   body = req.body;
   let note_id = body.note_id;
   let title = body.title;
@@ -433,10 +485,11 @@ app.post('change_note', (req, res) => {
   let mm = createDate.getMonth() + 1;
   let yyyy = createDate.getFullYear();
 
-  let modified = "" + yyyy + mm + dd;
+  let modified = "" + yyyy + "-" + mm + "-" + dd;
 
   // Check if authenticated, if yes, change the properties of the note and save it to the db
   if (sess.authenticated) {
+
     // Check if user is contributor to note
     var queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_user` = " + req.session.db_id + " AND Contributor.`fk_note` = " + note_id;
     connection.query(queryString, (err, rows) => {
@@ -448,27 +501,27 @@ app.post('change_note', (req, res) => {
           });
           return;
         } else {
-          res.json({
-            ok: false,
-            message: "Could not look up user if is contributor"
-          });
-          return;
+          queryString = "UPDATE Note SET title=?, content=?, date_modified=? WHERE id = ?";
+          connection.query(queryString, [title, content, modified, note_id], (err, rows) => {
+            if (!err) {
+              res.json({
+                ok: true,
+                message: "Note succesfully changed"
+              });
+            } else {
+              res.json({
+                ok: false,
+                message: "Note was not changed"
+              });
+            }
+          })
         }
-      }
-    })
-
-    queryString = "UPDATE Note SET title=" + title + ", content=" + content + ", date_modified=" + modified + " WHERE id = " + note_id + ";";
-    connection.query(queryString, (err, rows) => {
-      if (!err)
-        res.json({
-          ok: true,
-          message: "Note succesfully changed"
-        });
-      else {
+      } else {
         res.json({
           ok: false,
-          message: "Note was not changed"
+          message: "Could not look up user if is contributor"
         });
+        return;
       }
     })
   } else {
@@ -482,6 +535,11 @@ app.post('change_note', (req, res) => {
 // Get request to logout, destroys the session
 app.get('/logout', (req, res) => {
   req.session.destroy();
+
+  res.json({
+    ok: true,
+    message: "Session destroyed"
+  })
 });
 
 // Hosts the nodejs server on port 3000

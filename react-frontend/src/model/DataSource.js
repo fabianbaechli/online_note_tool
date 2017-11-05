@@ -32,7 +32,7 @@ export default class DataSource {
   login(username, password, callback) {
     backend_post("login", { username, password }, (response, xhr) => {
       callback(response)
-      if (this.onUpdate) this.onUpdate(this)
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
@@ -44,7 +44,7 @@ export default class DataSource {
       retype_password
     }, (response, xhr) => {
       callback(response)
-      if (this.onUpdate) this.onUpdate(this)
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
@@ -54,7 +54,7 @@ export default class DataSource {
       this.state.authenticated = kNotAuthenticated
       this.state.username = undefined
       callback(response)
-      if (this.onUpdate) this.onUpdate(this)
+      this.checkAuthenticated(() => { /* do nothing */ })
     })
   }
 
@@ -81,6 +81,12 @@ export default class DataSource {
     })
   }
 
+  createNote(callback) {
+    backend_post("create_note", {}, (response, xhr) => {
+      callback(response)
+    })
+  }
+
   changeNote(id, title, content, callback) {
     backend_post("change_note", {
       note_id: id,
@@ -100,7 +106,7 @@ export default class DataSource {
   }
 
   invite(id, username, callback) {
-    backend_post("invite", {
+    backend_post("invite_user", {
       note_id: id,
       username
     }, (response) => {

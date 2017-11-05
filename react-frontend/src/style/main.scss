@@ -14,7 +14,7 @@ $theme_tertiary_text_dark: #D1D5D8;
 // Dark text colors
 $theme_primary_text_light: #F0F1F5;
 $theme_secondary_text_light: #ECF0F1;
-$theme_tertiary_text_light: #F0F1F5;
+$theme_tertiary_text_light: lighten($theme_secondary_text_light, 10%);
 
 // Size constraints
 $sidebar_width: 330px;

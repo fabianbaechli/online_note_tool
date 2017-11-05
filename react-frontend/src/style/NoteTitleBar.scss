@@ -10,17 +10,47 @@
     font-size: 20px;
     color: $theme_primary_text_dark;
     line-height: 20px;
+    resize: none;
+    height: 20px;
+    width: 200%;
+    border: none;
+    background-color: transparent;
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .modified {
     font-weight: 400;
     font-size: 15px;
     color: $theme_primary_text_dark;
-    line-height: 20px;
+    line-height: 15px;
 
     span {
       color: $theme_secondary_text_dark;
       font-style: italic;
+    }
+  }
+
+  .deleteButton {
+    position: absolute;
+    right: 15px;
+    top: 0;
+    line-height: 50px;
+    font-size: 20px;
+    border: none;
+    border-radius: 0px;
+    background-color: transparent;
+    color: $theme_secondary_text_dark;
+    font-weight: 600;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover {
+      cursor: pointer;
     }
   }
 }
