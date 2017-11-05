@@ -130,28 +130,6 @@ app.post('/login', (req, res) => {
 
 // Get request, that returns all the Notes that belong to the User that is logged in
 app.get("/get_notes", (req, res) => {
-
-
-
-    var queryString = "SELECT N.id, N.title, N.date_created, N.date_modified, N.content FROM Note AS N " +
-      "INNER JOIN Contributor as C on N.id = C.fk_note INNER JOIN User as U on U.id = C.fk_user " +
-      "WHERE U.id = " + connection.escape(sess.db_id);
-    console.log(queryString);
-    connection.query(queryString, (err, rows) => {
-      if (!err) {
-        queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = " +
-
-
-          res.json({
-            ok: true,
-            notes: rows
-          });
-      }
-    })
-
-
-
-
   const session = req.session;
   if (!session.authenticated) {
     return res.json({
