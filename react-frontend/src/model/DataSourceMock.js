@@ -179,6 +179,51 @@ class MockServer {
     })
   }
 
+  deleteNote(id, callback) {
+    if (this.session === undefined) {
+      return callback({
+        ok: false,
+        message: "Not logged in"
+      })
+    }
+
+    let found_note
+
+    this.notes.map((note) => {
+      if (note.id == id) found_note = note
+    })
+
+    if (!found_note) {
+      return callback({
+        ok: false,
+        message: "Note doesn't exists"
+      })
+    }
+
+    // Check if the session user is a contributor of this note
+    let found_user
+
+    found_note.users.map((user) => {
+      if (user.username == this.session.username) found_user = user
+    })
+
+    if (!found_user) {
+      return callback({
+        ok: false,
+        message: "Not a contributor of this note"
+      })
+    }
+
+    this.notes = this.notes.filter((note) => {
+      return note.id != id
+    })
+
+    callback({
+      ok: true,
+      message: "Note deleted"
+    })
+  }
+
   invite(id, username, callback) {
     if (this.session === undefined) {
       return callback({
@@ -265,6 +310,12 @@ class MockServer {
     found_note.users = found_note.users.filter((user) => {
       return user.username != username
     })
+
+    if (found_note.users.length == 0) {
+      this.notes = this.notes.filter((note) => {
+        return note.id != found_note.id
+      })
+    }
 
     callback({
       ok: true,
@@ -361,6 +412,10 @@ export default class DataSource {
 
   changeNote(id, title, content, callback) {
     server.changeNote(id, title, content, callback)
+  }
+
+  deleteNote(id, callback) {
+    server.deleteNote(id, callback)
   }
 
   invite(id, username, callback) {

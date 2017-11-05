@@ -87,7 +87,15 @@ export default class DataSource {
       title,
       content
     }, (response, xhr) => {
-      callback(xhr)
+      callback(response)
+    })
+  }
+
+  deleteNote(id, callback) {
+    backend_post("delete_note", {
+      note_id: id
+    }, (response, xhr) => {
+      callback(response)
     })
   }
 

@@ -61,6 +61,9 @@ export default class MainViewController extends React.Component {
 
   deleteNote() {
     console.log("Deleting note " + this.state.notes[this.state.selected_index].id)
+    this.props.datasource.deleteNote(this.state.notes[this.state.selected_index].id, (response) => {
+      this.fetchNoteList()
+    })
   }
 
   onTitleChange(event) {
