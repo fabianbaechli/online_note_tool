@@ -450,7 +450,7 @@ app.post("/delete_note", (req, res) => {
 });
 
 // Post request to change a notes properties
-app.post('change_note', (req, res) => {
+app.post('/change_note', (req, res) => {
   body = req.body;
   let note_id = body.note_id;
   let title = body.title;
