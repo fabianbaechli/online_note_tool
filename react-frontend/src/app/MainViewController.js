@@ -7,6 +7,9 @@ import k from "../model/Constants.js"
 import NoteList from "./NoteList.js"
 import NoteView from "./NoteView.js"
 
+let titleChangeDebounce = undefined
+let contentChangeDebounce = undefined
+
 /*
  * Controller for the main application
  * */
@@ -68,16 +71,28 @@ export default class MainViewController extends React.Component {
   }
 
   onTitleChange(event) {
-    const title = event.target.value
+    const title = event.target.value.slice(0, k.MaxTitleLength)
     const content = this.state.notes[this.state.selected_index].content
 
     const notes = this.state.notes.slice()
     notes[this.state.selected_index] = Object.assign({}, notes[this.state.selected_index])
     notes[this.state.selected_index].title = title
 
-    this.props.datasource.changeNote(notes[this.state.selected_index].id, title, content, (response) => {
-      this.fetchNoteList()
+    this.setState({
+      notes
     })
+
+    if (titleChangeDebounce) {
+      clearTimeout(titleChangeDebounce)
+    }
+
+    const noteid = notes[this.state.selected_index].id
+
+    titleChangeDebounce = setTimeout(() => {
+      this.props.datasource.changeNote(noteid, title, content, (response) => {
+        this.fetchNoteList()
+      })
+    }, k.DataChangeDebounce)
   }
 
   onContentChange(event) {
@@ -88,9 +103,21 @@ export default class MainViewController extends React.Component {
     notes[this.state.selected_index] = Object.assign({}, notes[this.state.selected_index])
     notes[this.state.selected_index].content = content
 
-    this.props.datasource.changeNote(notes[this.state.selected_index].id, title, content, (response) => {
-      this.fetchNoteList()
+    this.setState({
+      notes
     })
+
+    const noteid = notes[this.state.selected_index].id
+
+    if (contentChangeDebounce) {
+      clearTimeout(contentChangeDebounce)
+    }
+
+    contentChangeDebounce = setTimeout(() => {
+      this.props.datasource.changeNote(noteid, title, content, (response) => {
+        this.fetchNoteList()
+      })
+    }, k.DataChangeDebounce)
   }
 
   invite(username) {

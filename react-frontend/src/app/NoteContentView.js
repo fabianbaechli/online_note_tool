@@ -35,7 +35,7 @@ export default class NoteContentView extends React.Component {
     } else {
       return (
         <textarea
-          className="content"
+          className="NoteContentViewSource"
           onChange={this.props.onChange}
           value={this.props.note.content}
         />
@@ -46,10 +46,12 @@ export default class NoteContentView extends React.Component {
   render() {
     return (
       <div className="NoteContentView">
-        <button onClick={this.toggleView}>Toggle View</button>
-        {
-          this.getRenderedView()
-        }
+        <button className="toggleView" onClick={this.toggleView}>Toggle View</button>
+        <div className="renderedMarkdown">
+          {
+            this.getRenderedView()
+          }
+        </div>
       </div>
     )
   }
