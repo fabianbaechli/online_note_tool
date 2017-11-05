@@ -41,6 +41,7 @@
 
     .NoteContentViewSource {
       width: 100%;
+      height: calc(100% - 30px);
       resize: none;
       background-color: transparent;
       border: none;
