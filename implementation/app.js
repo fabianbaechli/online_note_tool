@@ -203,9 +203,11 @@ app.post("/create_note", (req, res) => {
   const mm = createDate.getMonth() + 1;
   const yyyy = createDate.getFullYear();
 
+  const date_created = "" + yyyy + "-" + mm + "-" + dd;
+
   const queryString = "INSERT INTO Note (title, date_created, date_modified, content) VALUES (?, ?, ?, ?)"
 
-  connection.query(queryString, [], (err, rows) => {
+  connection.query(queryString, ["Untitled", date_created, date_created, ""], (err, rows) => {
     if (err) {
       return res.json({
         ok: false,
