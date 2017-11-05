@@ -12,13 +12,19 @@ class MockServer {
         id: 0,
         username: "leonard",
         password: "pw1"
+      },
+      {
+        id: 1,
+        username: "peter",
+        password: "pw2"
       }
     ]
 
     this.noteid = 0
-    this.userid = 0
+    this.userid = 1
 
     this.session = {
+      id: 0,
       username: "leonard"
     }
 
@@ -172,6 +178,99 @@ class MockServer {
       message: "Note changed"
     })
   }
+
+  invite(id, username, callback) {
+    if (this.session === undefined) {
+      return callback({
+        ok: false,
+        message: "Not logged in"
+      })
+    }
+
+    // Check if the note exists
+    let found_note
+
+    this.notes.map((note) => {
+      if (note.id == id) found_note = note
+    })
+
+    if (!found_note) {
+      return callback({
+        ok: false,
+        message: "Note doesn't exist"
+      })
+    }
+
+    // Check if user exists
+    let found_user
+
+    this.users.map((user) => {
+      if (user.username == username) found_user = user
+    })
+
+    if (!found_user) {
+      return callback({
+        ok: false,
+        message: "Invited username doesn't exist"
+      })
+    }
+
+    found_note.users.push({
+      id: found_user.id,
+      username: found_user.username
+    })
+
+    callback({
+      ok: true,
+      message: "User invited"
+    })
+  }
+
+  uninvite(id, username, callback) {
+    if (this.session === undefined) {
+      return callback({
+        ok: false,
+        message: "Not logged in"
+      })
+    }
+
+    // Check if the note exists
+    let found_note
+
+    this.notes.map((note) => {
+      if (note.id == id) found_note = note
+    })
+
+    if (!found_note) {
+      return callback({
+        ok: false,
+        message: "Note doesn't exist"
+      })
+    }
+
+    // Check if user exists
+    let found_user
+
+    this.users.map((user) => {
+      if (user.username == username) found_user = user
+    })
+
+    if (!found_user) {
+      return callback({
+        ok: false,
+        message: "Uninvited username doesn't exist"
+      })
+    }
+
+    found_note.users = found_note.users.filter((user) => {
+      return user.username != username
+    })
+
+    callback({
+      ok: true,
+      message: "User was uninvited"
+    })
+  }
 }
 
 const server = new MockServer()
@@ -262,5 +361,13 @@ export default class DataSource {
 
   changeNote(id, title, content, callback) {
     server.changeNote(id, title, content, callback)
+  }
+
+  invite(id, username, callback) {
+    server.invite(id, username, callback)
+  }
+
+  uninvite(id, username, callback) {
+    server.uninvite(id, username, callback)
   }
 }

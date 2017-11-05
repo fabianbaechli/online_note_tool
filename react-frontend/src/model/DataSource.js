@@ -90,4 +90,22 @@ export default class DataSource {
       callback(xhr)
     })
   }
+
+  invite(id, username, callback) {
+    backend_post("invite", {
+      note_id: id,
+      username
+    }, (response) => {
+      callback(response)
+    })
+  }
+
+  uninvite(id, username, callback) {
+    backend_post("uninvite_user", {
+      note_id: id,
+      username
+    }, (response) => {
+      callback(response)
+    })
+  }
 }

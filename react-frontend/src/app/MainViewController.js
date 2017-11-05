@@ -90,11 +90,15 @@ export default class MainViewController extends React.Component {
   }
 
   invite(username) {
-
+    this.props.datasource.invite(this.state.notes[this.state.selected_index].id, username, (response) => {
+      this.fetchNoteList()
+    })
   }
 
   uninvite(username) {
-
+    this.props.datasource.uninvite(this.state.notes[this.state.selected_index].id, username, (response) => {
+      this.fetchNoteList()
+    })
   }
 
   render() {
