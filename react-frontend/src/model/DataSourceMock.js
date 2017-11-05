@@ -23,10 +23,7 @@ class MockServer {
     this.noteid = 0
     this.userid = 1
 
-    this.session = {
-      id: 0,
-      username: "leonard"
-    }
+    this.session = undefined
 
     this.notes = []
   }
@@ -118,7 +115,7 @@ class MockServer {
       ok: true,
       notes: this.notes.filter((note) => {
         return note.users.filter((user) => {
-          return user.username = this.session.username
+          return user.username == this.session.username
         }).length > 0
       })
     })
