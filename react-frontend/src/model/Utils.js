@@ -15,3 +15,12 @@ export const backend_post = (route, payload, callback) => {
   xhr.addEventListener("load", () => callback(JSON.parse(xhr.responseText, xhr)))
   xhr.send(JSON.stringify(payload))
 }
+
+// Returns the current date as a string
+export const getDateString = () => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return year + "-" + month + "-" + day
+}

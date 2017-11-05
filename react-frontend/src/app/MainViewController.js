@@ -16,6 +16,12 @@ export default class MainViewController extends React.Component {
 
     this.fetchNoteList = this.fetchNoteList.bind(this)
     this.onSelectionChange = this.onSelectionChange.bind(this)
+    this.createNote = this.createNote.bind(this)
+    this.deleteNote = this.deleteNote.bind(this)
+    this.onTitleChange = this.onTitleChange.bind(this)
+    this.onContentChange = this.onContentChange.bind(this)
+    this.invite = this.invite.bind(this)
+    this.uninvite = this.uninvite.bind(this)
 
     this.state = {
       notes: [],
@@ -47,6 +53,57 @@ export default class MainViewController extends React.Component {
     })
   }
 
+  createNote() {
+    this.props.datasource.createNote((response) => {
+      this.fetchNoteList()
+    })
+  }
+
+  deleteNote() {
+    console.log("Deleting note " + this.state.notes[this.state.selected_index].id)
+    this.props.datasource.deleteNote(this.state.notes[this.state.selected_index].id, (response) => {
+      this.fetchNoteList()
+    })
+  }
+
+  onTitleChange(event) {
+    const title = event.target.value
+    const content = this.state.notes[this.state.selected_index].content
+
+    const notes = this.state.notes.slice()
+    notes[this.state.selected_index] = Object.assign({}, notes[this.state.selected_index])
+    notes[this.state.selected_index].title = title
+
+    this.props.datasource.changeNote(notes[this.state.selected_index].id, title, content, (response) => {
+      this.fetchNoteList()
+    })
+  }
+
+  onContentChange(event) {
+    const title = this.state.notes[this.state.selected_index].title
+    const content = event.target.value
+
+    const notes = this.state.notes.slice()
+    notes[this.state.selected_index] = Object.assign({}, notes[this.state.selected_index])
+    notes[this.state.selected_index].content = content
+
+    this.props.datasource.changeNote(notes[this.state.selected_index].id, title, content, (response) => {
+      this.fetchNoteList()
+    })
+  }
+
+  invite(username) {
+    this.props.datasource.invite(this.state.notes[this.state.selected_index].id, username, (response) => {
+      this.fetchNoteList()
+    })
+  }
+
+  uninvite(username) {
+    this.props.datasource.uninvite(this.state.notes[this.state.selected_index].id, username, (response) => {
+      this.fetchNoteList()
+    })
+  }
+
   render() {
     return (
       <div className="MainViewController">
@@ -54,9 +111,14 @@ export default class MainViewController extends React.Component {
           notes={this.state.notes}
           selected_index={this.state.selected_index}
           onSelectionChange={this.onSelectionChange}
+          onCreateNote={this.createNote}
         />
         <NoteView
-          datasource={this.props.datasource}
+          onDelete={this.deleteNote}
+          onTitleChange={this.onTitleChange}
+          onContentChange={this.onContentChange}
+          onInvite={this.invite}
+          onUninvite={this.uninvite}
           note={this.state.notes[this.state.selected_index]}
         />
       </div>

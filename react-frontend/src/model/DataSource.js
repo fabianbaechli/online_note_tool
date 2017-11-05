@@ -80,4 +80,40 @@ export default class DataSource {
       })
     })
   }
+
+  changeNote(id, title, content, callback) {
+    backend_post("change_note", {
+      note_id: id,
+      title,
+      content
+    }, (response, xhr) => {
+      callback(response)
+    })
+  }
+
+  deleteNote(id, callback) {
+    backend_post("delete_note", {
+      note_id: id
+    }, (response, xhr) => {
+      callback(response)
+    })
+  }
+
+  invite(id, username, callback) {
+    backend_post("invite", {
+      note_id: id,
+      username
+    }, (response) => {
+      callback(response)
+    })
+  }
+
+  uninvite(id, username, callback) {
+    backend_post("uninvite_user", {
+      note_id: id,
+      username
+    }, (response) => {
+      callback(response)
+    })
+  }
 }

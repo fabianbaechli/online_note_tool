@@ -1,0 +1,26 @@
+@import "main.scss";
+
+.NoteTitleBar {
+  height: 50px;
+  background-color: $theme_background_secondary;
+  padding: 5px;
+
+  .title {
+    font-weight: 600;
+    font-size: 20px;
+    color: $theme_primary_text_dark;
+    line-height: 20px;
+  }
+
+  .modified {
+    font-weight: 400;
+    font-size: 15px;
+    color: $theme_primary_text_dark;
+    line-height: 20px;
+
+    span {
+      color: $theme_secondary_text_dark;
+      font-style: italic;
+    }
+  }
+}

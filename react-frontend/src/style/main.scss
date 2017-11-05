@@ -3,10 +3,18 @@
 // Application color scheme
 $theme_primary: #48569E;
 $theme_background: #FEFEFE;
+$theme_background_secondary: darken($theme_background, 10%);
 $theme_border: #D6D6D6;
-$theme_primary_text: #1C2021;
-$theme_secondary_text: #333b3d;
-$theme_tertiary_text: #D1D5D8;
+
+// Light text colors
+$theme_primary_text_dark: #1C2021;
+$theme_secondary_text_dark: #333b3d;
+$theme_tertiary_text_dark: #D1D5D8;
+
+// Dark text colors
+$theme_primary_text_light: #F0F1F5;
+$theme_secondary_text_light: #ECF0F1;
+$theme_tertiary_text_light: #F0F1F5;
 
 // Size constraints
 $sidebar_width: 330px;

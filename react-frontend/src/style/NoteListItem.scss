@@ -7,21 +7,37 @@
 
   border-bottom: 5px solid $theme_border;
 
+  &.selected {
+    background-color: $theme_primary;
+
+    .title {
+      color: $theme_primary_text_light;
+    }
+
+    .modified {
+      color: $theme_secondary_text_light;
+    }
+
+    .content {
+      color: $theme_tertiary_text_light;
+    }
+  }
+
   .title {
     font-weight: 600;
     font-size: 20px;
-    color: $theme_primary_text;
+    color: $theme_primary_text_dark;
   }
 
   .modified {
     font-weight: 400;
     font-size: 15px;
-    color: $theme_secondary_text;
+    color: $theme_secondary_text_dark;
   }
 
   .content {
-    font-weight: 500;
+    font-weight: 400;
     font-size: 15px;
-    color: $theme_tertiary_text;
+    color: $theme_tertiary_text_dark;
   }
 }

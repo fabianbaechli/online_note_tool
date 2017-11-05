@@ -10,9 +10,15 @@ export default class NoteTitleBar extends React.Component {
   render() {
     return (
       <div className="NoteTitleBar">
-        <p className="title">{this.props.note.title}</p>
-        <p className="created">{this.props.note.created}</p>
-        <p className="modified">{this.props.note.modified}</p>
+        <textarea
+          className="title"
+          onChange={this.props.onChange}
+          value={this.props.note.title}
+        />
+        <p className="modified">
+          Last modified: <span>{this.props.note.modified}</span>
+        </p>
+        <button onClick={this.props.onDelete}>Delete Note</button>
       </div>
     )
   }
