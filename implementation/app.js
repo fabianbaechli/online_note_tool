@@ -372,10 +372,27 @@ app.post('/uninvite_user', (req, res) => {
                     queryString = "DELETE FROM Contributor WHERE Contributor.`fk_user` = " + userId + " AND Contributor.`fk_note` = " + body.note_id;
                     connection.query(queryString, (err, rows) => {
                       if (!err) {
-                        res.json({
-                          ok: true,
-                          message: "succesfully uninvited other user from this note"
-                        });
+                        // Check if this was the last Contributor to this not, if yes delete note
+                        queryString = "SELECT id FROM Contributor WHERE Contributor.`fk_note` = "+body.note_id;
+                        connection.query(queryString, (err, rows) => {
+                          if (!err) {
+                            if (rows.length === 0) {
+                              // Delete Note
+                              queryString = "DELETE FROM Note WHERE Note.`id` = "+body.note_id;
+                              connection.query(queryString, (err, rows) => {
+                                if (!err) {
+                                  res.json({ ok: true, message: "Succesfully deleted Note and Contributor"});
+                                } else {
+                                  res.json({ok: false, message: "Could not delete Note, something went wrong"})
+                                }
+                              })
+                            } else {
+                              res.json({ok: false, message = "Note was not deleted there are still contributors left" })
+                            }
+                          } else {
+                            res.json({ok: false, message: "Could not delete the note completely, because not able to check if any Contributors are left"})
+                          }
+                        })
                       } else {
                         res.json({
                           ok: false,
