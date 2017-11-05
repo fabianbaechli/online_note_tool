@@ -410,37 +410,30 @@ app.post('/uninvite_user', (req, res) => {
 // Delete a note with an ID
 app.post("/delete_note", (req, res) => {
   if (req.session.authenticated) {
-
-    var queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = " + req.body.note_id + "AND Contributor.`fk_user` = " + req.session.db_id;
-    connection.query(queryString, (err, rows) => {
-      if (!err)
-        res.json({
-          ok: true,
-          message: "deleted entry"
-        })
-      else
-        res.json({
-          ok: false,
-          message: "couldn't delete entry"
-        })
-    });
-
-    queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = " + req.body.note_id;
-    connection.query(queryString, (err, rows) => {
+    var queryString = "DELETE FROM Contributor WHERE Contributor.`fk_note` = ?";
+    connection.query(queryString, [req.body.note_id], (err, rows) => {
       if (!err) {
-        if (rows.length === 0) {
-          // no Contributors to this note delete it
-          queryString = "DELETE FROM Note WHERE Note.`id` = " + req.body.note_id;
-          connection.query(queryString, (err, rows) => {
-            if (!err) {
-              console.log("Succesfully deleted Note because no contributors are there");
-            } else {
-              console.log("Something went wrong while deleting the note from the table");
-            }
-          });
-        }
+        queryString = "DELETE FROM Note WHERE Note.`id` = ?";
+        connection.query(queryString, [req.body.note_id], (err, rows) => {
+          if (!err) {
+            return res.json({
+              ok: false,
+              message: "Deleted note"
+            })
+          } else {
+            return res.json({
+              ok: false,
+              message: "Could not delete note"
+            })
+          }
+        });
+      } else {
+        return res.json({
+          ok: false,
+          message: "Could not delete contributors"
+        })
       }
-    })
+    });
   } else {
     res.json({
       ok: false,
