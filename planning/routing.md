@@ -15,7 +15,7 @@
 }
 ```
 
-## `POST '/invite'`
+## `POST '/invite_user'`
 ### req
 ```json
 {

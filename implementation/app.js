@@ -138,13 +138,13 @@ app.get("/get_notes", (req, res) => {
     console.log(queryString);
     connection.query(queryString, (err, rows) => {
       if (!err) {
-        queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = "+
+        queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = " +
 
 
-        res.json({
-          ok: true,
-          notes: rows
-        });
+          res.json({
+            ok: true,
+            notes: rows
+          });
       }
     })
   } else {
@@ -178,10 +178,11 @@ app.post("/create_note", (req, res) => {
             return;
           }
         })
-      res.json({
-        ok: false,
-        message: "entry not created"
-      });
+        res.json({
+          ok: false,
+          message: "entry not created"
+        });
+      }
     });
   } else {
     res.json({
@@ -205,19 +206,175 @@ app.get("/authenticated", (req, res) => {
     })
 });
 
+// Helper method to get user Id
+function getUser(username, callback) {
+  connection.query("SELECT id FROM User WHERE User.`username` = ? ", [username], (err, rows) => {
+    if (!err) {
+      if (rows.length > 0) {
+        callback(rows[0].id);
+      } else {
+        callback(undefined);
+      }
+    } else {
+      callback(undefined);
+    }
+  });
+}
+
+// Add user to contribution of this note
 app.post('/invite_user', (req, res) => {
-  // Check if logged in
-  // Check if contributor to note
-  // Check if other user exists
-  // Check if other user is Contributor to note
-  // And then invite this user -- Create Contributor Entry in DB
+  sess = req.session;
+  body = req.body;
+
+
+  if (sess.authenticated) {
+    var userId;
+    getUser(body.username, (id) => {
+        if (id !== undefined) {
+          userId = id;
+        } else {
+          res.json({
+            ok: false,
+            message: "User does not exist"
+          });
+          return;
+        }
+
+        var queryString = "SELECT id, fk_user, fk_note FROM Contributor WHERE Contributor.`fk_user` = " + sess.db_id + " AND Contributor.`fk_note` = " + body.note_id;
+        connection.query(queryString, (err, rows) => {
+          if (!err) {
+            if (rows.length > 0) {
+              // User is contributor to this Note, Check if other User Is not a contributor and add him as a contributor
+              queryString = "SELECT id, fk_user, fk_note FROM Contributor WHERE Contributor.`fk_user` = " + userId + " AND Contributor.`fk_note` = " + body.note_id;
+              connection.query(queryString, (err, rows) => {
+                if (!err) {
+                  if (rows.length === 0) {
+                    // Create Contributor to this note
+                    queryString = "INSERT INTO Contributor (fk_user, fk_note) VALUES (" + userId + "," + body.note_id + ")";
+                    connection.query(queryString, (err, rows) => {
+                      if (!err) {
+                        res.json({
+                          ok: true,
+                          message: "succesfully invited other user to this note"
+                        });
+                      } else {
+                        res.json({
+                          ok: false,
+                          message: "Could not invite other user to this note"
+                        });
+                      }
+                    })
+                  } else {
+                    res.json({
+                      ok: false,
+                      message: "OtherUser is already contributor "
+                    });
+                  }
+                } else {
+                  res.json({
+                    ok: false,
+                    message: "Failed to check if other User is contribotr to this note"
+                  });
+                }
+              });
+            } else {
+              res.json({
+                ok: false,
+                message: "User is not Contributor to this note"
+              })
+            }
+          } else {
+            res.json({
+              ok: false,
+              message: "failed to check if user is contributor to this note"
+            });
+          }
+        })
+      } else {
+        res.json({
+          ok: false,
+          message: "not logged in"
+        });
+      }
+    });
 });
+
+// Removes User from Contribution of this note
 app.post('/uninvite_user', (req, res) => {
-  // Check if logged in
-  // Check if contributor to note
-  // Check if other user exists
-  // Check if other user is Contributor to note
-  // Remove other User -- Delete Contributor Entry in DB
+  sess = req.session;
+  body = req.body;
+
+
+  if (sess.authenticated) {
+    var userId;
+    getUser(body.username, (id) => {
+        if (id !== undefined) {
+          userId = id;
+        } else {
+          res.json({
+            ok: false,
+            message: "User does not exist"
+          });
+          return;
+        }
+
+        var queryString = "SELECT id, fk_user, fk_note FROM Contributor WHERE Contributor.`fk_user` = " + sess.db_id + " AND Contributor.`fk_note` = " + body.note_id;
+        connection.query(queryString, (err, rows) => {
+          if (!err) {
+            if (rows.length > 0) {
+              // User is contributor to this Note, Check if other User Is not a contributor and add him as a contributor
+              queryString = "SELECT id, fk_user, fk_note FROM Contributor WHERE Contributor.`fk_user` = " + userId + " AND Contributor.`fk_note` = " + body.note_id;
+              connection.query(queryString, (err, rows) => {
+                if (!err) {
+                  if (rows.length !== 0) {
+                    // Create Contributor to this note
+                    queryString = "DELETE FROM Contributor WHERE Contributor.`fk_user` = " + userId + " AND Contributor.`fk_note` = " + body.note_id;
+                    connection.query(queryString, (err, rows) => {
+                      if (!err) {
+                        res.json({
+                          ok: true,
+                          message: "succesfully uninvited other user from this note";
+                        });
+                      } else {
+                        res.json({
+                          ok: false,
+                          message: "Could not uninvite other user to this note";
+                        });
+                      }
+                    })
+                  } else {
+                    res.json({
+                      ok: false,
+                      message: "OtherUser is already not a contributor "
+                    });
+                  }
+                } else {
+                  res.json({
+                    ok: false,
+                    message: "Failed to check if other User is contributor to this note"
+                  });
+                }
+              });
+            } else {
+              res.json({
+                ok: false,
+                message: "User is not Contributor to this note"
+              })
+            }
+          } else {
+            res.json({
+              ok: false,
+              message: "failed to check if user is contributor to this note"
+            });
+          }
+        })
+      } else {
+        res.json({
+          ok: false,
+          message: "not logged in"
+        });
+      }
+    });
 });
 
 // Delete a note with an ID
@@ -239,11 +396,11 @@ app.post("/delete_note", (req, res) => {
     });
 
     queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_note` = " + req.body.note_id;
-    connection.query(queryString, (err,rows) => {
+    connection.query(queryString, (err, rows) => {
       if (!err) {
         if (rows.length === 0) {
           // no Contributors to this note delete it
-          queryString = "DELETE FROM Note WHERE Note.`id` = "+req.body.note_id;
+          queryString = "DELETE FROM Note WHERE Note.`id` = " + req.body.note_id;
           connection.query(queryString, (err, rows) => {
             if (!err) {
               console.log("Succesfully deleted Note because no contributors are there");
@@ -279,14 +436,20 @@ app.post('change_note', (req, res) => {
   // Check if authenticated, if yes, change the properties of the note and save it to the db
   if (sess.authenticated) {
     // Check if user is contributor to note
-    var queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_user` = "+req.session.db_id+" AND Contributor.`fk_note` = "+note_id;
+    var queryString = "SELECT * FROM Contributor WHERE Contributor.`fk_user` = " + req.session.db_id + " AND Contributor.`fk_note` = " + note_id;
     connection.query(queryString, (err, rows) => {
       if (!err) {
         if (rows.length === 0) {
-          res.json({ok:false, message: "Not a Contributor to this note"});
+          res.json({
+            ok: false,
+            message: "Not a Contributor to this note"
+          });
           return;
         } else {
-          res.json({ok:false, message: "Could not look up user if is contributor"});
+          res.json({
+            ok: false,
+            message: "Could not look up user if is contributor"
+          });
           return;
         }
       }
@@ -314,6 +477,7 @@ app.post('change_note', (req, res) => {
   }
 });
 
+// Get request to logout, destroys the session
 app.get('/logout', (req, res) => {
   req.session.destroy();
 });
