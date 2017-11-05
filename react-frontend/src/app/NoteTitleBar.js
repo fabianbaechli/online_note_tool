@@ -18,7 +18,7 @@ export default class NoteTitleBar extends React.Component {
         <p className="modified">
           Last modified: <span>{this.props.note.modified}</span>
         </p>
-        <button onClick={this.props.onDelete}>Delete Note</button>
+        <button className="deleteButton" onClick={this.props.onDelete}>Delete Note</button>
       </div>
     )
   }
