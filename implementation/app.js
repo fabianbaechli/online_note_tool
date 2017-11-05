@@ -154,6 +154,13 @@ app.get("/get_notes", (req, res) => {
     const notes = rows
     let finished_user_fetches = 0
 
+    if (notes.length == 0) {
+      return res.json({
+        ok: true,
+        notes: []
+      })
+    }
+
     notes.map((note, index) => {
       let queryString = "SELECT U.id, U.username FROM User AS U INNER JOIN Contributor AS C on U.id = C.fk_user " +
         "INNER JOIN Note AS N on N.id = C.fk_note WHERE N.id = ?"
