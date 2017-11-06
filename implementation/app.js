@@ -330,16 +330,13 @@ app.post('/invite_user', (req, res) => {
                     });
                 }
             });
-          }
         })
-    });
-      } else {
-        res.json({
-            ok: false,
-            message: "not logged in"
-        });
-      }
-
+    } else {
+      res.json({
+          ok: false,
+          message: "not logged in"
+      });
+    }
 });
 
 // Removes User from Contribution of this note
